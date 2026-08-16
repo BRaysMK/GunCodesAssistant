@@ -272,8 +272,8 @@ export default function App() {
       <header className="header">
         <div className="logo">⌖</div>
         <div>
-          <h1>改枪码助手</h1>
-          <p className="sub">三角洲行动 · 本地改枪码库</p>
+          <h1>三角洲本地改枪码记事本</h1>
+          <p className="sub">三角洲行动 · 本地改枪码库 · 粘贴自动识别</p>
         </div>
         <div className="stats">
           <span className="stat"><b>{stats.count}</b> 条记录</span>
