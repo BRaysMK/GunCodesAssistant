@@ -1,6 +1,6 @@
 [package]
 name = "gun-codes-app"
-version = "1.0.0"
+version = "1.0.1"
 description = "三角洲行动本地改枪码库"
 authors = ["BRaysMK"]
 edition = "2021"
