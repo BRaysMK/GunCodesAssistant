@@ -1,5 +1,8 @@
 //! 三角洲行动本地改枪码库 - 独立应用
-mod local_gun_codes;
+//
+// `local_gun_codes` 设为 `pub` 是为了让 `tests/` 下的集成测试
+// （PDF 格式端到端识别测试）能访问其纯函数；不影响应用本身。
+pub mod local_gun_codes;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
