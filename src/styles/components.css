@@ -1,0 +1,362 @@
+/**
+ * 组件层：按钮 / 卡片 / pill / 抽屉 / 模态 / toast / 骨架屏 / 空状态
+ * 只引用 tokens 变量，不写裸色值。
+ */
+
+/* ═══════════════ 按钮 ═══════════════ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  border: none;
+  border-radius: var(--r-md);
+  cursor: pointer;
+  font-size: var(--fs-base);
+  font-weight: 600;
+  padding: 9px 18px;
+  color: #fff;
+  background: var(--c-accent-gradient);
+  transition: filter var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease),
+    background-color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.btn:hover:not(:disabled) {
+  filter: brightness(1.1);
+  box-shadow: var(--shadow-accent);
+}
+.btn:active:not(:disabled) {
+  transform: scale(0.975);
+}
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.btn svg {
+  flex-shrink: 0;
+}
+
+.btn.small {
+  padding: 5px 12px;
+  font-size: var(--fs-sm);
+  border-radius: var(--r-sm);
+}
+.btn.icon {
+  padding: 6px;
+  width: auto;
+  border-radius: var(--r-sm);
+}
+.btn.ghost {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  color: var(--c-text);
+}
+.btn.ghost:hover:not(:disabled) {
+  background: var(--c-surface-hover);
+  border-color: var(--c-border-strong);
+  box-shadow: none;
+}
+.btn.danger {
+  background: var(--c-danger-soft);
+  color: var(--c-danger);
+  border: 1px solid var(--c-danger-border);
+}
+.btn.danger:hover:not(:disabled) {
+  background: var(--c-danger);
+  color: #fff;
+  box-shadow: none;
+}
+.btn-row {
+  display: flex;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* ═══════════════ 卡片 / 面板 ═══════════════ */
+.panel {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-lg);
+  padding: var(--sp-5);
+  backdrop-filter: blur(8px);
+  transition: border-color var(--dur) var(--ease), background-color var(--dur) var(--ease);
+}
+
+.card {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-md);
+  padding: var(--sp-3);
+  transition: border-color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease),
+    box-shadow var(--dur-fast) var(--ease), background-color var(--dur-fast) var(--ease);
+}
+.card:hover {
+  border-color: var(--c-border-strong);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-1);
+}
+
+/* ═══════════════ pill（分类/枪名/排序）═══════════════ */
+.pill {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+  border: 1px solid var(--c-border);
+  background: var(--c-surface);
+  color: var(--c-text-dim);
+  border-radius: var(--r-full);
+  padding: 5px 13px;
+  font-size: var(--fs-sm);
+  cursor: pointer;
+  transition: all var(--dur-fast) var(--ease);
+  white-space: nowrap;
+}
+.pill:hover {
+  border-color: var(--c-accent);
+  color: var(--c-text);
+  background: var(--c-surface-hover);
+}
+.pill.active {
+  background: var(--c-accent-gradient);
+  color: #fff;
+  border-color: transparent;
+  font-weight: 600;
+  box-shadow: var(--shadow-accent);
+}
+.pill .cnt {
+  opacity: 0.7;
+  font-size: var(--fs-xs);
+}
+
+.pill-row {
+  display: flex;
+  gap: var(--sp-2);
+  overflow-x: auto;
+  padding: 2px 2px var(--sp-2);
+  scrollbar-width: thin;
+}
+
+/* ═══════════════ 状态提示 ═══════════════ */
+.recog {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+  font-size: var(--fs-sm);
+  margin-top: var(--sp-2);
+  padding: 7px 11px;
+  border-radius: var(--r-sm);
+  animation: riseIn var(--dur) var(--ease);
+}
+.recog.ok {
+  color: var(--c-ok);
+  background: var(--c-ok-soft);
+  border: 1px solid var(--c-ok-border);
+}
+.recog.unknown {
+  color: var(--c-warn);
+  background: var(--c-warn-soft);
+  border: 1px solid var(--c-warn-border);
+}
+.recog .dim {
+  color: var(--c-text-dim);
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: var(--fs-xs);
+  padding: 1px 6px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--c-border);
+  color: var(--c-text-dim);
+  white-space: nowrap;
+}
+.tag.ok { border-color: var(--c-ok-border); color: var(--c-ok); }
+.tag.warn { border-color: var(--c-warn-border); color: var(--c-warn); }
+
+/* ═══════════════ 模态 / 抽屉 ═══════════════ */
+.scrim {
+  position: fixed;
+  inset: 0;
+  background: var(--c-scrim);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-modal);
+  animation: fadeIn var(--dur) var(--ease);
+  padding: var(--sp-6);
+}
+
+.modal {
+  width: min(680px, 100%);
+  max-height: 86vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--c-surface-solid);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow-3);
+  animation: scaleIn var(--dur) var(--ease);
+  overflow: hidden;
+}
+.modal.wide { width: min(900px, 100%); }
+.modal-head {
+  padding: var(--sp-5) var(--sp-5) var(--sp-3);
+  border-bottom: 1px solid var(--c-border);
+}
+.modal-head h2 {
+  font-size: var(--fs-md);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+.modal-body {
+  padding: var(--sp-5);
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+}
+.modal-foot {
+  padding: var(--sp-3) var(--sp-5) var(--sp-5);
+  display: flex;
+  gap: var(--sp-2);
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  border-top: 1px solid var(--c-border);
+}
+.modal-hint {
+  font-size: var(--fs-sm);
+  color: var(--c-text-dim);
+  line-height: 1.65;
+  margin-bottom: var(--sp-3);
+}
+
+/* 抽屉：从右侧滑入（添加改枪码用）*/
+.drawer-scrim {
+  position: fixed;
+  inset: 0;
+  background: var(--c-scrim);
+  backdrop-filter: blur(3px);
+  z-index: var(--z-drawer);
+  animation: fadeIn var(--dur) var(--ease);
+  display: flex;
+  justify-content: flex-end;
+}
+.drawer {
+  width: min(520px, 100%);
+  height: 100%;
+  background: var(--c-surface-solid);
+  border-left: 1px solid var(--c-border);
+  box-shadow: var(--shadow-3);
+  animation: slideInRight var(--dur-slow) var(--ease-out);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ═══════════════ 骨架屏 ═══════════════ */
+.skeleton {
+  border-radius: var(--r-sm);
+  background: linear-gradient(
+    90deg,
+    var(--c-surface) 0%,
+    var(--c-surface-hover) 50%,
+    var(--c-surface) 100%
+  );
+  background-size: 840px 100%;
+  animation: shimmer 1.4s linear infinite;
+}
+.skeleton-group {
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-lg);
+  padding: var(--sp-4);
+  margin-bottom: var(--sp-3);
+}
+.skeleton-line { height: 12px; margin-bottom: var(--sp-2); }
+.skeleton-line.w40 { width: 40%; }
+.skeleton-line.w70 { width: 70%; }
+.skeleton-line.w90 { width: 90%; }
+
+/* ═══════════════ 空状态 ═══════════════ */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-3);
+  color: var(--c-text-dim);
+  text-align: center;
+  padding: var(--sp-10) var(--sp-4);
+  font-size: var(--fs-base);
+  animation: fadeIn var(--dur-slow) var(--ease);
+}
+.empty svg {
+  color: var(--c-text-faint);
+  opacity: 0.75;
+}
+.empty .empty-title {
+  font-weight: 600;
+  color: var(--c-text);
+  font-size: var(--fs-md);
+}
+.empty .empty-hint {
+  font-size: var(--fs-sm);
+  max-width: 380px;
+  line-height: 1.6;
+}
+
+/* ═══════════════ Toast ═══════════════ */
+.toast-wrap {
+  position: fixed;
+  bottom: var(--sp-6);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  align-items: center;
+  z-index: var(--z-toast);
+  pointer-events: none;
+}
+.toast {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  background: var(--c-surface-solid);
+  border: 1px solid var(--c-border);
+  color: var(--c-text);
+  padding: 9px 18px;
+  border-radius: var(--r-full);
+  font-size: var(--fs-base);
+  box-shadow: var(--shadow-2);
+  animation: riseIn var(--dur) var(--ease);
+}
+.toast.error { border-color: var(--c-danger-border); color: var(--c-danger); }
+.toast.ok { border-color: var(--c-ok-border); color: var(--c-ok); }
+
+/* ═══════════════ 其他 ═══════════════ */
+.spinner {
+  width: 15px;
+  height: 15px;
+  border: 2px solid var(--c-border-strong);
+  border-top-color: var(--c-accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+.divider {
+  height: 1px;
+  background: var(--c-border);
+  margin: var(--sp-3) 0;
+  border: none;
+}
+
+.muted { color: var(--c-text-dim); }
+.faint { color: var(--c-text-faint); }
+.nowrap { white-space: nowrap; }
