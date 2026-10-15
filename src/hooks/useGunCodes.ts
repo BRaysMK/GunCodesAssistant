@@ -7,6 +7,7 @@ import type {
   RecognizeResult,
   RulesMeta,
 } from "@/lib/gunCodes";
+import { setGunTable } from "@/lib/gunCodes";
 
 export interface ImportSummary {
   imported: number;
@@ -41,11 +42,19 @@ export function useGunCodes(onError: (msg: string) => void) {
     }
   }, []);
 
+  /**
+   * 加载规则库元信息，并把**枪械分类表**注入纯逻辑层
+   *
+   * 注入后 `catOf()` 才能给出正确分类（否则一律「其他」）。
+   * 这也让「刷新词库」后分类表自动同步，无需重编译。
+   */
   const loadMeta = useCallback(async () => {
     try {
-      setMeta(await invoke<RulesMeta>("get_gun_rules_meta"));
+      const m = await invoke<RulesMeta>("get_gun_rules_meta");
+      setMeta(m);
+      if (m.guns && m.guns.length > 0) setGunTable(m.guns);
     } catch {
-      /* 元信息失败不阻塞主流程 */
+      /* 元信息失败不阻塞主流程（分类退回兜底表） */
     }
   }, []);
 
@@ -83,6 +92,33 @@ export function useGunCodes(onError: (msg: string) => void) {
     async (id: string) => {
       await invoke("delete_local_gun_code", { id });
       await refresh();
+    },
+    [refresh],
+  );
+
+  /**
+   * 批量删除。
+   *
+   * 刻意**不新增 Tauri 命令**：顺序复用既有的 `delete_local_gun_code`，
+   * 结束后 refresh 一次。既保持后端命令面不变，也避免为一次 UI 需求改动 Rust。
+   * 有失败项时抛错，让上层如实汇报，而不是谎报「全部成功」。
+   */
+  const removeMany = useCallback(
+    async (ids: string[]) => {
+      if (ids.length === 0) return 0;
+      let ok = 0;
+      let failed = 0;
+      for (const id of ids) {
+        try {
+          await invoke("delete_local_gun_code", { id });
+          ok++;
+        } catch {
+          failed++;
+        }
+      }
+      await refresh();
+      if (failed > 0) throw new Error(`${failed} 条未能删除（可能已被移除）`);
+      return ok;
     },
     [refresh],
   );
@@ -138,7 +174,7 @@ export function useGunCodes(onError: (msg: string) => void) {
     items, loading, meta,
     refresh, loadMeta,
     recognize,
-    add, update, remove,
+    add, update, remove, removeMany,
     preview, importRows,
     exportJson, importJson,
     refreshRules,

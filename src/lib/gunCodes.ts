@@ -1,15 +1,41 @@
 /**
  * 改枪码纯逻辑层
  *
- * 从 App.tsx 原样提取，**只搬迁不重写**，便于单测锁定行为。
- * 这些函数与后端 `local_gun_codes.rs` 的规则保持一致：
+ * 与后端 `local_gun_codes.rs` 的规则保持一致：
  *   - `norm()`       ↔ Rust `normalize()`
  *   - `canonicalOf()`↔ Rust 的别名索引（rules.json 的 guns[].aliases）
  *   - `catOf()`      ↔ rules.json 的 guns[].category
+ *
+ * ## 分类表的来源（重要）
+ *
+ * 「枪名 → 分类」**不再手写常量**，改为运行时由后端下发：
+ * 后端 `get_gun_rules_meta` / `refresh_gun_rules` 返回 `guns[]`，
+ * 前端经 [`setGunTable`] 注入。
+ *
+ * 原因：手写常量与规则库必然漂移 —— 实测曾漏了 **14 把枪**
+ * （SR-3M / SCAR-H / ASH-12 / AK-12 / AS Val / AKS-74U / FS-12 / QBZ-95 /
+ *  93R / CAR-15 / PTR-32 / PSG-1 / SR9 / SV-98），
+ * 导致 **69/399（17%）** 的码被错误归入「其他」分类。
+ *
+ * [`FALLBACK_CATEGORY_MAP`] 仅用于**首帧渲染前**（meta 尚未返回）与
+ * 浏览器 mock 环境，避免分类闪烁；其内容由校验脚本
+ * `.dsh/scripts/check-category-sync.js` 与规则库强制对齐。
  */
 
-// ── 枪械类别映射（与后端 rules.json 的 guns[].category 对齐）──
-export const CATEGORY_MAP: Record<string, string> = {
+/** 后端下发的枪械表条目 */
+export interface GunTableRow {
+  name: string;
+  category: string;
+  aliases?: string[];
+}
+
+/**
+ * 兜底分类表（首帧/mock 用）
+ *
+ * ⚠️ 必须与 `rules.json` 的 guns 完全一致。改动规则库后请运行：
+ *   `node .dsh/scripts/check-category-sync.js`
+ */
+export const FALLBACK_CATEGORY_MAP: Record<string, string> = {
   RM277: "步枪", AR57: "步枪", MCX: "步枪", MK47: "步枪", KC17: "步枪",
   K437: "步枪", 腾龙: "步枪", "AS Val": "步枪", "CAR-15": "步枪", "PTR-32": "步枪",
   G3: "步枪", "SCAR-H": "步枪", "AK-12": "步枪", SG552: "步枪", M7: "步枪",
@@ -21,6 +47,7 @@ export const CATEGORY_MAP: Record<string, string> = {
   SVCH: "射手步枪", M14: "射手步枪", M700: "射手步枪", "PSG-1": "射手步枪", SVD: "射手步枪",
   MINI14: "射手步枪", VSS: "射手步枪", SR25: "射手步枪", R93: "射手步枪", "SV-98": "射手步枪",
   AWM: "射手步枪", SKS: "射手步枪", 杠杆步枪: "射手步枪", 巴雷特: "射手步枪", M82: "射手步枪",
+  SR9: "射手步枪",
   M250: "机枪", PKM: "机枪", QJB: "机枪", M249: "机枪",
   S12K: "霰弹枪", M1014: "霰弹枪", 725: "霰弹枪", M870: "霰弹枪", "FS-12": "霰弹枪",
   DP12: "霰弹枪", KSG: "霰弹枪",
@@ -28,6 +55,46 @@ export const CATEGORY_MAP: Record<string, string> = {
   P226: "手枪", M9: "手枪",
   弓: "弓",
 };
+
+/** 运行时分类表（由后端 guns[] 注入；null 表示尚未加载） */
+let runtimeCategoryMap: Record<string, string> | null = null;
+
+/** 运行时别名表（由后端 guns[].aliases 注入） */
+let runtimeAliasMap: Record<string, string> | null = null;
+
+/**
+ * 注入后端下发的枪械表
+ *
+ * - 传 `null` 可复位到兜底表（测试 / 切库时用）
+ * - `aliases` 一并纳入映射：`QJB201`/`SR3M` 等变体也能取到正确分类，
+ *   与后端别名索引语义一致
+ */
+export function setGunTable(rows: GunTableRow[] | null): void {
+  if (!rows || rows.length === 0) {
+    runtimeCategoryMap = null;
+    runtimeAliasMap = null;
+    return;
+  }
+  const cat: Record<string, string> = {};
+  const alias: Record<string, string> = {};
+  for (const row of rows) {
+    if (!row?.name) continue;
+    cat[row.name] = row.category;
+    for (const a of row.aliases ?? []) {
+      if (!a) continue;
+      // 别名先归一到规范名，再取其分类
+      cat[a] = row.category;
+      alias[norm(a)] = row.name;
+    }
+  }
+  runtimeCategoryMap = cat;
+  runtimeAliasMap = alias;
+}
+
+/** 当前是否已注入后端分类表（供 UI 判断是否需要重渲染） */
+export function hasRuntimeGunTable(): boolean {
+  return runtimeCategoryMap !== null;
+}
 
 /** 分类固定展示顺序（其余分类——含「其他」——动态追加） */
 export const CATEGORY_ORDER = [
@@ -64,12 +131,20 @@ export const ALIAS_TO_CANON: Record<string, string> = {
 
 /** 把任意写法归一到规范枪名（`AS VAL`/`ASVal`/`AS-VAL` → `AS Val`） */
 export function canonicalOf(raw: string): string {
-  return ALIAS_TO_CANON[norm(raw)] ?? raw;
+  const n = norm(raw);
+  // 运行时表（后端下发的 aliases）优先，其次内置常见变体
+  return runtimeAliasMap?.[n] ?? ALIAS_TO_CANON[n] ?? raw;
 }
 
-/** 查询枪械分类；未收录归入「其他」 */
+/**
+ * 查询枪械分类；未收录归入「其他」
+ *
+ * 优先用后端下发的运行时表，未加载时退回内置兜底表。
+ */
 export function catOf(gun: string): string {
-  return CATEGORY_MAP[canonicalOf(gun)] ?? CATEGORY_FALLBACK;
+  const canon = canonicalOf(gun);
+  const map = runtimeCategoryMap ?? FALLBACK_CATEGORY_MAP;
+  return map[canon] ?? map[gun] ?? CATEGORY_FALLBACK;
 }
 
 /** 格式化时间戳（秒 → `YYYY-MM-DD HH:mm`） */
@@ -141,7 +216,15 @@ export interface RulesMeta {
   gunCount: number;
   fingerprintCount: number;
   learnedCount: number;
+  /** 分类 → 该分类下的枪数（统计用） */
   categories: Record<string, number>;
+  /**
+   * 枪械分类表（v1.3.0 起后端下发）
+   *
+   * 前端据此分类，取代此前的手写常量。
+   * 旧版后端可能不返回该字段 → 用 `FALLBACK_CATEGORY_MAP` 兜底。
+   */
+  guns?: GunTableRow[];
 }
 
 export type SortKey = "count" | "name" | "recent";

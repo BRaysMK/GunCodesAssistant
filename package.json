@@ -1,6 +1,6 @@
 {
   "name": "gun-codes-app",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -8,14 +8,17 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "test:logic": "node scripts/run-logic-tests.mjs",
+    "test:category": "node scripts/verify-category-runtime.mjs",
+    "test:sync": "node ../.dsh/scripts/check-category-sync.js",
     "tauri": "tauri",
     "tauri:dev": "tauri dev",
     "tauri:build": "tauri build"
   },
   "dependencies": {
+    "@fluentui/react-components": "^9.74.9",
+    "@fluentui/react-icons": "^2.0.344",
     "@tauri-apps/api": "^2.10.1",
     "@tauri-apps/plugin-dialog": "^2.7.1",
-    "lucide-react": "^0.487.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
