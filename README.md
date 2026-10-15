@@ -31,14 +31,42 @@
 **词库热更**：`rules.json` 随包分发在 `resources/gun-codes/` 下，
 替换该文件后点界面左下角「刷新词库」即可生效，无需重新编译。
 
-## 界面（v1.2.0 重做）
+## 界面（v1.3.0 用 FluentUI 重做）
 
-- **左侧边栏**：分类导航（含「其他」）+ 统计 + 词库版本 + 主题切换
-- **顶部工具栏**：搜索 / 枪名可搜索多选 / 排序 / 批量导入 / 添加
-- **添加改枪码改为右侧抽屉**，不再占用列表版面
-- **深色 / 浅色 / 跟随系统**三态主题，选择会记住
-- **响应式**：窗口变窄时侧边栏自动收为顶部横向条
-- 骨架屏加载态、空状态引导、分组展开动画、搜索命中高亮
+界面基于 **Microsoft FluentUI v9（Fluent 2 设计语言）**，不引入任何自绘组件或手写样式表。
+
+整体是标准桌面应用外壳：**顶栏 / 主区 / 状态栏** 三行，主区再分**磁贴导航 + 内容**两栏。
+
+- **顶栏**：品牌 · 搜索 · 排序菜单 · 表格/分组视图切换 · 批量导入 · 备份菜单 · 添加改枪码 · 主题与词库
+- **磁贴导航（左栏）**：分类选择器（一排紧凑按钮）+ **武器磁贴网格**。
+  一块磁贴 = 一把枪，标注配置条数；分类用左侧 3px 色条表达而非徽标。
+  点磁贴即筛选该枪，**Ctrl/⌘ + 点击可多选**（沿用桌面端惯例，不额外占界面）。
+- **内容区**：
+  - **表格**：一行一条配置，列可拖拽调宽、支持多选（批量复制 / 批量删除）
+  - **分组**：按枪折叠展开，适合逐把枪浏览
+  - 行操作收进每行一个「⋯」菜单，而不是常驻三个图标
+- **状态栏**：记录数 / 枪数 / 当前筛选 / 词库版本
+- **添加与编辑合并为一个右侧抽屉（OverlayDrawer）**：粘贴后自动识别，显示置信度与识别依据
+- **深色 / 浅色**一键切换（选择会记住），品牌色阶取自应用图标（蓝→紫）
+- 窗口 <1100px 时磁贴导航收为浮层抽屉，由顶栏汉堡按钮唤起
+- 骨架屏加载态、两态空状态（库为空 / 筛选无果）、搜索命中高亮、Fluent Toast 通知
+
+> **排序只有一处真源**（顶栏排序菜单），表格表头不参与排序，避免两个入口互相覆盖。
+>
+> **视觉规范**见 `docs/UI-DECISIONS.md`：字体阶、表面层次、行高、降噪规则都写在那里，
+> 改动界面前请先读，避免回退到「能用但廉价」的状态。
+
+### 只想改界面、不想编译 Rust？
+
+界面可以在普通浏览器里预览（用内存假数据顶替 Tauri 后端）：
+
+```bash
+VITE_GCA_MOCK=1 npm run dev
+```
+
+`src/dev/mockTauri.ts` 实现了 `window.__TAURI_INTERNALS__` 的最小替身。它**只在
+`VITE_GCA_MOCK=1` 时被动态 import**，正式构建会被完全摇掉 —— 可用
+`grep __GCA_MOCK__ dist/assets/*.js` 验证（应无结果）。
 
 ## 快速开始
 
@@ -55,6 +83,9 @@ npm install
 npm run tauri:build
 # 产物在 src-tauri/target/release/
 ```
+
+> 本机若 `cargo` 不在 PATH，需先设置 `CARGO_HOME` / `RUSTUP_HOME` 再执行
+> （见 `.dsh/scripts/gca-tauri-build.ps1` 的写法）。
 
 ## 使用说明
 
@@ -88,30 +119,47 @@ MK47突击步枪-烽火地带-6HN54R808PBNCS3LFEE0A
 
 ## 技术栈
 - 桌面框架：Tauri 2（Rust 后端 + WebView2）
-- 前端：React 19 + TypeScript + Vite + **lucide-react**（图标）
-- 样式：**纯手写 CSS**（设计令牌分四层 `src/styles/{tokens,base,components,layout}.css`），无 UI 框架
+- 前端：React 19 + TypeScript + Vite
+- UI：**FluentUI v9**（`@fluentui/react-components` + `@fluentui/react-icons`）
+- 样式：Fluent 设计令牌（`tokens.*`）+ `makeStyles`；全局 CSS 只留 `src/styles/global.css`（尺寸链、首屏底色、滚动条）
 - 存储：tauri-plugin-store（本地 JSON，数据在 `%APPDATA%\com.braysmk.guncodes\local_gun_codes.json`）
 
 ## 开发
 
 ```bash
 npm install
-npm run tauri:dev      # 开发模式
-npm run test:logic     # 纯逻辑层单测（11 项，无需测试框架）
-npm run tauri:build    # 打包
+VITE_GCA_MOCK=1 npm run dev   # 纯界面预览（无需 Rust，用内存假数据）
+npm run tauri:dev             # 完整开发模式（真实后端）
+npm run test:logic            # 纯逻辑层单测（11 项，无需测试框架）
+npm run tauri:build           # 打包
 ```
 
 代码结构：
 ```
 src/
-├── lib/gunCodes.ts        # 纯逻辑（归一化/分类/统计），有单测锁定
+├── theme/theme.ts         # 品牌色阶 + Fluent 浅/深主题（全项目唯一写颜色字面量的地方）
+├── lib/
+│   ├── gunCodes.ts        # 纯逻辑（归一化/分类/统计），有单测锁定
+│   └── clipboard.ts       # 复制（clipboard API + execCommand 降级）
 ├── hooks/
 │   ├── useGunCodes.ts     # 数据层（所有 Tauri 命令集中于此）
-│   ├── useFilters.ts      # 筛选/排序/持久化/失效自愈
-│   └── useTheme.ts        # 主题解析与持久化
-├── components/            # 12 个 UI 组件
-└── styles/                # 设计令牌分四层
+│   ├── useFilters.ts      # 筛选/排序/分组/持久化/失效自愈
+│   ├── useThemeMode.ts    # 主题解析与持久化（沿用 gca_theme_mode 键）
+│   └── useMediaQuery.ts   # 断点订阅
+├── components/            # FluentUI 组件层（SideNav/CommandBar/DataGrid/Tree/Editor/Dialog…）
+├── dev/mockTauri.ts       # 浏览器预览用的假后端（正式构建会被摇掉）
+└── styles/global.css      # 仅剩的全局样式
 ```
+
+### 两个务必注意的 FluentUI 坑（都已在代码注释中标注）
+
+1. **不要给 `FluentProvider` 传 `className` 承载布局。**
+   它的 `applyStylesToPortals`（默认开）会把整个 className 复制到每个 portal 挂载节点上；
+   而 portal 节点自带 `position:absolute; inset-inline:0; z-index:1000000` 且有不透明背景。
+   一旦 className 里有 `height:100%`，每个 Tooltip 的 portal 都会变成铺满窗口的遮罩
+   —— 实测 22 个 Tooltip 直接把界面盖没。布局请用 `style`。
+2. **`NavCategoryItem` 的展开回调里，分类值在 `data.categoryValue`**，
+   `data.value` 恒为空串。用错字段表现为「分类永远展不开」。
 
 ## 隐私
 - 100% 本地运行，数据不上传、不联网

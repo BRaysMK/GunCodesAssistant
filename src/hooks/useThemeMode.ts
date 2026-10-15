@@ -1,36 +1,36 @@
 import { useCallback, useEffect, useState } from "react";
+import type { Theme } from "@fluentui/react-components";
+import { appDarkTheme, appLightTheme, type ResolvedThemeMode, type ThemeMode } from "@/theme/theme";
 
-export type ThemeMode = "dark" | "light" | "system";
-export type ResolvedTheme = "dark" | "light";
-
+/** localStorage 键：沿用 v1.2.0 的键名，老用户的主题选择不丢 */
 const STORAGE_KEY = "gca_theme_mode";
 
-/** 读取系统偏好 */
-function systemPrefers(): ResolvedTheme {
+function systemPrefers(): ResolvedThemeMode {
   if (typeof window === "undefined" || !window.matchMedia) return "dark";
   return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
 }
 
-/** 读取用户显式选择（无则 system） */
 function readStored(): ThemeMode {
   try {
     const v = localStorage.getItem(STORAGE_KEY);
     if (v === "dark" || v === "light" || v === "system") return v;
   } catch {
-    /* 忽略 */
+    /* localStorage 不可用时静默降级 */
   }
   return "system";
 }
 
 /**
- * 主题解析：用户显式选择 → 系统偏好 → 深色。
- * 结果写入 `<html data-theme="...">`，由 CSS 变量切换。
+ * 主题解析：显式选择 → 系统偏好 → 深色。
+ *
+ * 返回 Fluent 的 `Theme` 对象给 `FluentProvider`，同时把解析结果写到
+ * `<html data-theme>` 与 `color-scheme`，让浏览器原生控件（滚动条、输入框
+ * 自动填充）与首屏背景色跟上主题。
  */
-export function useTheme() {
+export function useThemeMode() {
   const [mode, setMode] = useState<ThemeMode>(() => readStored());
-  const [system, setSystem] = useState<ResolvedTheme>(() => systemPrefers());
+  const [system, setSystem] = useState<ResolvedThemeMode>(() => systemPrefers());
 
-  // 跟随系统变化（仅在 mode === "system" 时生效于解析结果）
   useEffect(() => {
     if (typeof window === "undefined" || !window.matchMedia) return;
     const mq = window.matchMedia("(prefers-color-scheme: light)");
@@ -39,11 +39,12 @@ export function useTheme() {
     return () => mq.removeEventListener("change", onChange);
   }, []);
 
-  const resolved: ResolvedTheme = mode === "system" ? system : mode;
+  const resolved: ResolvedThemeMode = mode === "system" ? system : mode;
 
-  // 应用到 DOM
   useEffect(() => {
-    document.documentElement.setAttribute("data-theme", resolved);
+    const root = document.documentElement;
+    root.dataset.theme = resolved;
+    root.style.colorScheme = resolved;
   }, [resolved]);
 
   const setTheme = useCallback((next: ThemeMode) => {
@@ -55,10 +56,12 @@ export function useTheme() {
     }
   }, []);
 
-  /** 在 深/浅 间直接切换（写为显式选择，脱离 system 跟随） */
+  const theme: Theme = resolved === "dark" ? appDarkTheme : appLightTheme;
+
+  /** 在深/浅之间直接切换（写为显式选择，脱离「跟随系统」） */
   const toggle = useCallback(() => {
     setTheme(resolved === "dark" ? "light" : "dark");
   }, [resolved, setTheme]);
 
-  return { mode, resolved, setTheme, toggle };
+  return { mode, resolved, theme, setTheme, toggle };
 }

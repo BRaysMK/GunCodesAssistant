@@ -4,6 +4,28 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>三角洲本地改枪码记事本</title>
+    <script>
+      /*
+       * 首屏主题兜底：在 React 与 FluentProvider 挂载之前就把 data-theme / color-scheme
+       * 定下来，否则深色模式下会先闪一帧浅色底再切深色。
+       * 键名与 src/hooks/useThemeMode.ts 保持一致。
+       */
+      (function () {
+        try {
+          var stored = localStorage.getItem("gca_theme_mode");
+          var resolved =
+            stored === "light" || stored === "dark"
+              ? stored
+              : window.matchMedia("(prefers-color-scheme: light)").matches
+                ? "light"
+                : "dark";
+          document.documentElement.dataset.theme = resolved;
+          document.documentElement.style.colorScheme = resolved;
+        } catch (e) {
+          document.documentElement.dataset.theme = "dark";
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

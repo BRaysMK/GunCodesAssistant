@@ -1,0 +1,70 @@
+/**
+ * 全局样式（尽量薄）
+ *
+ * FluentUI v9 自带 reset、字体排版、焦点环、滚动条与动效系统，因此这里只保留
+ * 三件 Fluent 管不到的事：
+ *   1. 文档级尺寸链条（html/body/#root 撑满，供应用外壳做 grid）
+ *   2. 首屏底色 —— React 与 FluentProvider 挂载**之前**就生效，避免深色模式闪白
+ *   3. body 不滚动（滚动交给内容区，避免出现双滚动条）
+ *
+ * 颜色只在这里以「首屏兜底」形式出现两次：此时 Fluent 的 tokens 还没注入。
+ * 其余所有颜色一律走 `src/theme/theme.ts` 里的 Fluent 令牌。
+ */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* 首屏兜底底色：值取自 Fluent 2 的 colorNeutralBackground3 / Background1 */
+html {
+  background-color: #f5f5f5;
+}
+html[data-theme="dark"] {
+  background-color: #141414;
+}
+
+body {
+  background-color: inherit;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* 中文在 Windows 上默认字重偏细，略微加粗更接近 Fluent 的视觉密度 */
+  text-rendering: optimizeLegibility;
+}
+
+/* 拖动窗口时禁用文本选择，避免出现「选中一片文字」的桌面应用违和感；
+   但输入框、代码文本仍允许选择。 */
+body {
+  user-select: none;
+}
+input,
+textarea,
+code,
+[data-selectable="true"] {
+  user-select: text;
+}
+
+/* 应用外壳：由 App.tsx 用内联 grid 样式驱动，这里只保证它填满且不溢出 */
+#root {
+  isolation: isolate;
+}
+
+/* 动效降级：尊重系统「减少动态效果」 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

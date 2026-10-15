@@ -12,6 +12,17 @@ export default defineConfig({
     },
   },
   clearScreen: false,
+  build: {
+    // FluentUI 单包 raw ~950 kB / gzip ~265 kB，拆成独立 chunk 便于缓存并压掉体积告警
+    chunkSizeWarningLimit: 1200,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          fluent: ["@fluentui/react-components", "@fluentui/react-icons"],
+        },
+      },
+    },
+  },
   server: {
     port: 5173,
     strictPort: true,
