@@ -14,6 +14,7 @@ import { Highlight } from "./Highlight";
 const CATEGORY_ACCENT: Record<string, string> = {
   步枪: tokens.colorPaletteBlueBorderActive,
   冲锋枪: tokens.colorPaletteTealBorderActive,
+  狙击枪: tokens.colorPaletteBerryBorderActive,
   射手步枪: tokens.colorPalettePurpleBorderActive,
   机枪: tokens.colorPaletteMarigoldBorderActive,
   霰弹枪: tokens.colorPaletteDarkOrangeBorderActive,

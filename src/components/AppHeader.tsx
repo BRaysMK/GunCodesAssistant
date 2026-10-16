@@ -188,7 +188,7 @@ export function AppHeader({
         </span>
         <span className={styles.brandText}>
           <Text weight="semibold" size={300}>
-            改枪码记事本
+            本地改枪码
           </Text>
           <Text size={200} style={{ color: tokens.colorNeutralForeground3 }}>
             三角洲行动 · 本地库

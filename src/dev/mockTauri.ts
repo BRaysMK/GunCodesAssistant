@@ -118,13 +118,13 @@ function parseDocument(text: string): PreviewRow[] {
 
 function rulesMeta(): RulesMeta {
   return {
-    version: 3,
-    generated: "2026-10-15",
+    version: 5,
+    generated: "2026-10-16",
     source: `${MOCK_TAG} 开发预览数据（非真实词库）`,
     gunCount: 71,
     fingerprintCount: 399,
     learnedCount: learned.size,
-    categories: { 步枪: 24, 冲锋枪: 13, 射手步枪: 15, 机枪: 4, 霰弹枪: 7, 手枪: 7, 弓: 1 },
+    categories: { 步枪: 24, 冲锋枪: 13, 狙击枪: 5, 射手步枪: 10, 机枪: 4, 霰弹枪: 7, 手枪: 7, 弓: 1 },
   };
 }
 

@@ -6,6 +6,7 @@
   "permissions": [
     "core:default",
     "store:default",
-    "dialog:default"
+    "dialog:default",
+    "core:window:allow-set-theme"
   ]
 }
