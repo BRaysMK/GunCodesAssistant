@@ -5,3 +5,9 @@ src-tauri/gen/
 *.log
 .DS_Store
 icon-source.png
+
+# 规则库抓取的原始样本：体积大（约 2MB）、可随时用 scripts/fetch-anxu.mjs 重新抓取
+.rules-src/
+
+# 规则库回滚备份：git 历史里已有旧版本，可用 `git show <commit>:<path>` 取回
+*.bak.json

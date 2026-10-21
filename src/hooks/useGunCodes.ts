@@ -3,9 +3,13 @@ import { invoke } from "@tauri-apps/api/core";
 import { save, open } from "@tauri-apps/plugin-dialog";
 import type {
   GunCode,
+  LearnedList,
   PreviewResult,
   RecognizeResult,
   RulesMeta,
+  RulesResetResult,
+  RulesUpdateCheck,
+  RulesUpdateResult,
 } from "@/lib/gunCodes";
 import { setGunTable } from "@/lib/gunCodes";
 
@@ -170,6 +174,54 @@ export function useGunCodes(onError: (msg: string) => void) {
     await loadMeta();
   }, [loadMeta]);
 
+  // ── 词库在线热更新 ──
+
+  /** 检查是否有更新（只比对，不落盘） */
+  const checkRulesUpdate = useCallback(
+    () => invoke<RulesUpdateCheck>("check_gun_rules_update"),
+    [],
+  );
+
+  /** 下载并应用远程词库（本地优先合并） */
+  const updateRules = useCallback(async () => {
+    const res = await invoke<RulesUpdateResult>("update_gun_rules");
+    await loadMeta();
+    return res;
+  }, [loadMeta]);
+
+  /** 清除合并结果，回到随包分发的词库 */
+  const resetRules = useCallback(async () => {
+    const res = await invoke<RulesResetResult>("reset_gun_rules");
+    await loadMeta();
+    return res;
+  }, [loadMeta]);
+
+  // ── 学习表管理（输错枪名后可纠正） ──
+
+  const listLearned = useCallback(
+    () => invoke<LearnedList>("list_learned_fingerprints"),
+    [],
+  );
+
+  const deleteLearned = useCallback(
+    (fingerprint: string) => invoke<{ ok: boolean; removed?: number; remaining?: number; error?: string }>(
+      "delete_learned_fingerprint",
+      { fingerprint },
+    ),
+    [],
+  );
+
+  const clearLearned = useCallback(
+    () => invoke<{ ok: boolean; cleared: number }>("clear_learned_fingerprints"),
+    [],
+  );
+
+  /** 只清除学习表里遗留的备注，保留枪名（早期版本把备注也存了进去） */
+  const clearLearnedNotes = useCallback(
+    () => invoke<{ ok: boolean; cleaned: number; total?: number }>("clear_learned_notes"),
+    [],
+  );
+
   return {
     items, loading, meta,
     refresh, loadMeta,
@@ -178,5 +230,7 @@ export function useGunCodes(onError: (msg: string) => void) {
     preview, importRows,
     exportJson, importJson,
     refreshRules,
+    checkRulesUpdate, updateRules, resetRules,
+    listLearned, deleteLearned, clearLearned, clearLearnedNotes,
   };
 }

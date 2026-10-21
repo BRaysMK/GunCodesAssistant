@@ -20,6 +20,8 @@ import { GunTreeView } from "@/components/GunTreeView";
 import { GunCodeEditor } from "@/components/GunCodeEditor";
 import { ImportDialog } from "@/components/ImportDialog";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { RulesManagerDialog } from "@/components/RulesManagerDialog";
+import { AppContextMenu } from "@/components/AppContextMenu";
 import { SelectionBar } from "@/components/SelectionBar";
 import { EmptyState } from "@/components/EmptyState";
 
@@ -130,6 +132,7 @@ export default function App() {
   const [editorOpen, setEditorOpen] = useState(false);
   const [editing, setEditing] = useState<GunCode | null>(null);
   const [importOpen, setImportOpen] = useState(false);
+  const [rulesOpen, setRulesOpen] = useState(false);
   const [pendingDelete, setPendingDelete] = useState<GunCode | null>(null);
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -239,14 +242,13 @@ export default function App() {
     }
   }, [data, notify]);
 
-  const handleRefreshRules = useCallback(async () => {
-    try {
-      await data.refreshRules();
-      notify("词库已重新加载");
-    } catch (e) {
-      notify("刷新词库失败", "error", String(e));
-    }
-  }, [data, notify]);
+  // ── 词库管理（在线更新 + 学习表纠错）──
+  const handleNotify = useCallback(
+    (msg: string, kind: "success" | "error" | "warning" = "success") => {
+      notify(msg, kind);
+    },
+    [notify],
+  );
 
   const openAdd = useCallback(() => {
     setEditing(null);
@@ -286,6 +288,8 @@ export default function App() {
       onClearGunFilter={() => filters.setGuns([])}
       dismissible={!wide}
       onDismiss={() => setNavOpen(false)}
+      meta={data.meta}
+      onOpenRulesManager={() => setRulesOpen(true)}
     />
   );
 
@@ -303,7 +307,7 @@ export default function App() {
           onImportDoc={() => setImportOpen(true)}
           onExport={handleExport}
           onImportJson={handleImportJson}
-          onRefreshRules={handleRefreshRules}
+          onOpenRulesManager={() => setRulesOpen(true)}
           themeMode={theme.mode}
           onToggleTheme={theme.toggle}
           hasActiveFilter={filters.hasActiveFilter}
@@ -426,6 +430,20 @@ export default function App() {
         }}
       />
 
+      <RulesManagerDialog
+        open={rulesOpen}
+        onClose={() => setRulesOpen(false)}
+        meta={data.meta}
+        onCheckUpdate={data.checkRulesUpdate}
+        onApplyUpdate={data.updateRules}
+        onResetRules={data.resetRules}
+        onListLearned={data.listLearned}
+        onDeleteLearned={data.deleteLearned}
+        onClearLearned={data.clearLearned}
+        onClearNotes={data.clearLearnedNotes}
+        onNotify={handleNotify}
+      />
+
       <ConfirmDialog
         open={pendingDelete !== null}
         title="删除这条改枪码？"
@@ -453,6 +471,9 @@ export default function App() {
         onCancel={() => setBulkDeleteOpen(false)}
         onConfirm={handleDeleteSelected}
       />
+
+      {/* 应用内右键菜单：替代 WebView2 的「刷新/另存为/打印」 */}
+      <AppContextMenu />
 
       <Toaster toasterId={toasterId} position="bottom-end" />
     </FluentProvider>

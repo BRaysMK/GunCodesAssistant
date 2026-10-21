@@ -1,8 +1,8 @@
 import { useMemo } from "react";
 import {
-  Button, Caption1, Divider, Text, makeStyles, mergeClasses, tokens,
+  Button, Caption1, Divider, Text, Tooltip, makeStyles, mergeClasses, tokens,
 } from "@fluentui/react-components";
-import { DismissRegular, FilterDismissRegular } from "@fluentui/react-icons";
+import { ArrowSyncRegular, DismissRegular, FilterDismissRegular } from "@fluentui/react-icons";
 import { canonicalOf, catOf, type GunCode } from "@/lib/gunCodes";
 import { GunTile } from "./GunTile";
 
@@ -66,6 +66,28 @@ const useStyles = makeStyles({
     flexShrink: 0,
   },
   clearRow: { marginBottom: tokens.spacingVerticalXS },
+  /** 底部词库状态条：固定在导航区底部 */
+  footer: {
+    paddingBottom: tokens.spacingVerticalS,
+    paddingLeft: tokens.spacingHorizontalM,
+    paddingRight: tokens.spacingHorizontalS,
+    flexShrink: 0,
+  },
+  footerRow: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    columnGap: tokens.spacingHorizontalS,
+    paddingTop: tokens.spacingVerticalXS,
+  },
+  footerMeta: {
+    color: tokens.colorNeutralForeground3,
+    fontVariantNumeric: "tabular-nums",
+    minWidth: 0,
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+  },
 });
 
 /**
@@ -90,6 +112,8 @@ export function NavTilePane({
   onClearGunFilter,
   onDismiss,
   dismissible = false,
+  meta,
+  onOpenRulesManager,
 }: {
   items: GunCode[];
   /** 当前筛选结果，用于让磁贴计数与列表保持一致 */
@@ -104,6 +128,10 @@ export function NavTilePane({
   onClearGunFilter: () => void;
   onDismiss?: () => void;
   dismissible?: boolean;
+  /** 词库元信息（底部状态条展示） */
+  meta?: { version: number; gunCount: number; fingerprintCount: number; learnedCount: number } | null;
+  /** 打开词库管理面板 */
+  onOpenRulesManager?: () => void;
 }) {
   const styles = useStyles();
 
@@ -206,6 +234,37 @@ export function NavTilePane({
               ))}
             </div>
           )}
+        </div>
+      </div>
+
+      {/* 底部：词库状态 + 管理入口
+          这是词库管理的**主入口** —— 放在导航区底部符合直觉，
+          且不受顶栏宽度竞争影响（顶栏曾因断点问题把它藏掉）。 */}
+      <div className={styles.footer}>
+        <Divider />
+        <div className={styles.footerRow}>
+          <Tooltip
+            content={
+              meta
+                ? `词库 v${meta.version} · ${meta.gunCount} 枪 · ${meta.fingerprintCount} 指纹 · 已学 ${meta.learnedCount}`
+                : "词库读取中…"
+            }
+            relationship="description"
+            withArrow
+          >
+            <Caption1 className={styles.footerMeta}>
+              {meta ? `词库 v${meta.version} · ${meta.fingerprintCount} 指纹` : "词库读取中…"}
+            </Caption1>
+          </Tooltip>
+          <Button
+            appearance="subtle"
+            size="small"
+            icon={<ArrowSyncRegular />}
+            aria-label="词库管理"
+            onClick={onOpenRulesManager}
+          >
+            管理
+          </Button>
         </div>
       </div>
     </div>

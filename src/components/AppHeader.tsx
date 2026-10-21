@@ -68,33 +68,29 @@ const useStyles = makeStyles({
     width: "260px",
     minWidth: "120px",
     "@media (max-width: 1280px)": { width: "160px" },
-    "@media (max-width: 1000px)": { width: "140px" },
+    "@media (max-width: 1120px)": { width: "150px" },
   },
   spacer: { flex: "1 1 auto" },
   actions: { flexShrink: 0 },
   /**
-   * 窄窗（≤1080px）取舍：低频控件让位，而不是让顶栏换行 ——
-   * 换行会把内容区高度再吃掉 40–70px，而 900×600 本就是纵向最紧张的场景。
+   * 窄窗策略：**只收文字，不丢功能**。
    *
-   * 让位的都**有替代入口**：
-   *  - 主题切换 → 「备份」菜单里有同名菜单项
-   *  - 刷新词库 → 词库随包分发，只在替换 rules.json 后才需要
-   *  - 批量导入 → 空状态与「添加」抽屉里都有引导
+   * 教训：早先把断点设在 1080px，而 tauri.conf.json 的窗口宽度正好是 1080px ——
+   * 于是应用用自己的默认尺寸打开时，「词库管理」「切换主题」「批量导入」
+   * 三个按钮全部 `display:none`，词库管理面板**完全没有入口**（真机实测确认）。
+   *
+   * 现在改为：按钮始终可见，窄窗只隐藏文字标签（保留图标 + aria-label + Tooltip），
+   * 既省下宽度，又保证每个功能在任何尺寸下都可达。
    */
-  hideOnNarrow: {
-    "@media (max-width: 1080px)": { display: "none" },
+  labelOnWide: {
+    "@media (max-width: 1120px)": { display: "none" },
   },
-  /**
-   * 「清除筛选」在窄窗收回图标形态：它的文字是撑破 900px 首行的主因，
-   * 但它又不能简单隐藏（用户需要一键复位筛选），收成图标 + Tooltip 是折中。
-   * Fluent 的文字在 root 里，故直接对 root 收窄。
-   */
+  /** 「清除筛选」同理：窄窗只留图标 */
   clearFilters: {
-    "@media (max-width: 1080px)": {
+    "@media (max-width: 1120px)": {
       minWidth: "auto",
       paddingLeft: tokens.spacingHorizontalXS,
       paddingRight: tokens.spacingHorizontalXS,
-      fontSize: "0",
     },
   },
 });
@@ -128,7 +124,7 @@ export function AppHeader({
   onImportDoc,
   onExport,
   onImportJson,
-  onRefreshRules,
+  onOpenRulesManager,
   themeMode,
   onToggleTheme,
   hasActiveFilter,
@@ -146,7 +142,7 @@ export function AppHeader({
   onImportDoc: () => void;
   onExport: () => void;
   onImportJson: () => void;
-  onRefreshRules: () => void;
+  onOpenRulesManager: () => void;
   themeMode: ThemeMode;
   onToggleTheme: () => void;
   hasActiveFilter: boolean;
@@ -253,14 +249,17 @@ export function AppHeader({
       )}
 
       <ToolbarGroup className={styles.actions} aria-label="数据操作">
-        {/* 文档 → 库：整段文档解析入库，用 DocumentArrowUp 表达「文档进入」 */}
-        <ToolbarButton
-          className={styles.hideOnNarrow}
-          icon={<DocumentArrowUpRegular />}
-          onClick={onImportDoc}
-        >
-          批量导入
-        </ToolbarButton>
+        {/* 文档 → 库：整段文档解析入库，用 DocumentArrowUp 表达「文档进入」
+            窄窗只隐藏文字，图标始终可见（靠 aria-label + Tooltip 保证可访问） */}
+        <Tooltip content="批量导入：粘贴文档，先预览再入库" relationship="description" withArrow>
+          <ToolbarButton
+            icon={<DocumentArrowUpRegular />}
+            aria-label="批量导入"
+            onClick={onImportDoc}
+          >
+            <span className={styles.labelOnWide}>批量导入</span>
+          </ToolbarButton>
+        </Tooltip>
 
         <Menu>
           <MenuTrigger disableButtonEnhancement>
@@ -278,7 +277,10 @@ export function AppHeader({
                 从 JSON 备份导入
               </MenuItem>
               <MenuDivider />
-              {/* 窄窗下顶栏的主题按钮会被隐藏，这里保证它始终可达 */}
+              {/* 词库管理兜底入口：菜单在任何尺寸下都可达 */}
+              <MenuItem icon={<ArrowSyncRegular />} onClick={onOpenRulesManager}>
+                词库管理…
+              </MenuItem>
               <MenuItem
                 icon={themeMode === "dark" ? <WeatherSunnyRegular /> : <WeatherMoonRegular />}
                 onClick={onToggleTheme}
@@ -304,18 +306,18 @@ export function AppHeader({
         withArrow
       >
         <ToolbarButton
-          className={styles.hideOnNarrow}
           icon={themeMode === "dark" ? <WeatherSunnyRegular /> : <WeatherMoonRegular />}
           aria-label="切换主题"
           onClick={onToggleTheme}
         />
       </Tooltip>
-      <Tooltip content="重新读取 rules.json（词库可热更）" relationship="description" withArrow>
+      {/* 词库管理：始终可见。它曾因断点等于默认窗口宽度而被完全隐藏，
+          导致面板没有任何入口 —— 详见 styles.labelOnWide 的注释。 */}
+      <Tooltip content="词库管理：在线更新 / 学习表纠错" relationship="description" withArrow>
         <ToolbarButton
-          className={styles.hideOnNarrow}
           icon={<ArrowSyncRegular />}
-          aria-label="刷新词库"
-          onClick={onRefreshRules}
+          aria-label="词库管理"
+          onClick={onOpenRulesManager}
         />
       </Tooltip>
     </Toolbar>

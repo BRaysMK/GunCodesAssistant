@@ -230,6 +230,70 @@ export interface RulesMeta {
 
 export type SortKey = "count" | "name" | "recent";
 
+// ═══════════════ 词库热更新 / 学习表管理 ═══════════════
+
+/** `check_gun_rules_update` 的返回 */
+export interface RulesUpdateCheck {
+  ok: boolean;
+  error?: string;
+  /** 命中的远程源（github-raw / jsdelivr） */
+  source?: string;
+  localVersion?: number;
+  remoteVersion?: number;
+  remoteGenerated?: string;
+  remoteFingerprints?: number;
+  /** 若合并，能新增多少条指纹 */
+  wouldAdd?: number;
+  hasUpdate?: boolean;
+}
+
+/** `update_gun_rules` 的返回 */
+export interface RulesUpdateResult {
+  ok: boolean;
+  error?: string;
+  source?: string;
+  remoteVersion?: number;
+  remoteGenerated?: string;
+  /** 本次新增的指纹数（本地已有的不覆盖） */
+  added?: number;
+  before?: number;
+  after?: number;
+  version?: number;
+  gunCount?: number;
+  guns?: GunTableRow[];
+}
+
+/** `reset_gun_rules` 的返回 */
+export interface RulesResetResult {
+  ok: boolean;
+  error?: string;
+  removed?: boolean;
+  version?: number;
+  fingerprintCount?: number;
+  gunCount?: number;
+  guns?: GunTableRow[];
+}
+
+/** 已学习指纹的一条记录 */
+export interface LearnedFingerprint {
+  fingerprint: string;
+  gun: string;
+  config: string;
+  /** 规则库里同一指纹的枪名（若有） */
+  fromRules: string | null;
+  inLibrary: boolean;
+  /** 与规则库不一致时，这里放规则库的枪名 */
+  conflictWith: string | null;
+}
+
+export interface LearnedList {
+  ok: boolean;
+  count: number;
+  /** 与规则库冲突的条数 */
+  conflicts: number;
+  items: LearnedFingerprint[];
+}
+
 export interface PreviewStats {
   sel: number;
   dup: number;
