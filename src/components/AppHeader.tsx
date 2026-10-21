@@ -5,7 +5,7 @@ import {
 } from "@fluentui/react-components";
 import {
   AddRegular, ArrowDownloadRegular, ArrowSortRegular, ArrowSyncRegular,
-  DatabaseRegular, DocumentArrowUpRegular, FilterDismissRegular, GroupListRegular,
+  DatabaseRegular, DeleteRegular, DocumentArrowUpRegular, FilterDismissRegular, GroupListRegular,
   NavigationRegular, SaveRegular, TableRegular, WeatherMoonRegular, WeatherSunnyRegular,
 } from "@fluentui/react-icons";
 import type { SortKey } from "@/lib/gunCodes";
@@ -125,6 +125,10 @@ export function AppHeader({
   onExport,
   onImportJson,
   onOpenRulesManager,
+  onDeleteFiltered,
+  onClearAll,
+  filteredCount,
+  hasFilter,
   themeMode,
   onToggleTheme,
   hasActiveFilter,
@@ -143,6 +147,14 @@ export function AppHeader({
   onExport: () => void;
   onImportJson: () => void;
   onOpenRulesManager: () => void;
+  /** 删除当前筛选结果（无筛选时禁用） */
+  onDeleteFiltered: () => void;
+  /** 清空全部改枪码 */
+  onClearAll: () => void;
+  /** 当前筛选出的条数（用于菜单项文案与禁用判断） */
+  filteredCount: number;
+  /** 是否处于筛选态 */
+  hasFilter: boolean;
   themeMode: ThemeMode;
   onToggleTheme: () => void;
   hasActiveFilter: boolean;
@@ -275,6 +287,20 @@ export function AppHeader({
               </MenuItem>
               <MenuItem icon={<DocumentArrowUpRegular />} onClick={onImportJson}>
                 从 JSON 备份导入
+              </MenuItem>
+              <MenuDivider />
+              {/* 危险操作放菜单里，避免误触常驻按钮 */}
+              <MenuItem
+                icon={<DeleteRegular />}
+                disabled={!hasFilter || filteredCount === 0}
+                onClick={onDeleteFiltered}
+              >
+                {hasFilter
+                  ? `删除当前筛选结果（${filteredCount} 条）…`
+                  : "删除当前筛选结果（无筛选）"}
+              </MenuItem>
+              <MenuItem icon={<DeleteRegular />} onClick={onClearAll}>
+                清空全部改枪码…
               </MenuItem>
               <MenuDivider />
               {/* 词库管理兜底入口：菜单在任何尺寸下都可达 */}

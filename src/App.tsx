@@ -135,6 +135,9 @@ export default function App() {
   const [rulesOpen, setRulesOpen] = useState(false);
   const [pendingDelete, setPendingDelete] = useState<GunCode | null>(null);
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
+  // v1.7.0：一键删除（筛选结果 / 全部）
+  const [deleteFilteredOpen, setDeleteFilteredOpen] = useState(false);
+  const [clearAllOpen, setClearAllOpen] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   // ── 选中集剪枝 ──
@@ -197,6 +200,34 @@ export default function App() {
       notify("批量删除未全部完成", "error", String(e));
     }
   }, [selectedItems, data, notify]);
+
+  // ── v1.7.0：一键删除（筛选结果 / 全部）──
+
+  /** 删除当前筛选出的全部条目 */
+  const handleDeleteFiltered = useCallback(async () => {
+    setDeleteFilteredOpen(false);
+    const ids = filters.filtered.map((i) => i.id);
+    if (ids.length === 0) return;
+    try {
+      const n = await data.removeMany(ids);
+      setSelectedIds(new Set());
+      notify(`已删除 ${n} 条（当前筛选结果）`);
+    } catch (e) {
+      notify("删除未全部完成", "error", String(e));
+    }
+  }, [filters.filtered, data, notify]);
+
+  /** 清空全部改枪码 */
+  const handleClearAll = useCallback(async () => {
+    setClearAllOpen(false);
+    try {
+      const r = await data.clearAll();
+      setSelectedIds(new Set());
+      notify(r.deleted > 0 ? `已清空全部 ${r.deleted} 条改枪码` : "没有可删除的记录");
+    } catch (e) {
+      notify("清空失败", "error", String(e));
+    }
+  }, [data, notify]);
 
   const handleSave = useCallback(
     async (weaponName: string, code: string, note: string) => {
@@ -308,6 +339,10 @@ export default function App() {
           onExport={handleExport}
           onImportJson={handleImportJson}
           onOpenRulesManager={() => setRulesOpen(true)}
+          onDeleteFiltered={() => setDeleteFilteredOpen(true)}
+          onClearAll={() => setClearAllOpen(true)}
+          filteredCount={filters.filtered.length}
+          hasFilter={filters.filtered.length !== data.items.length}
           themeMode={theme.mode}
           onToggleTheme={theme.toggle}
           hasActiveFilter={filters.hasActiveFilter}
@@ -475,6 +510,35 @@ export default function App() {
         )}
         onCancel={() => setBulkDeleteOpen(false)}
         onConfirm={handleDeleteSelected}
+      />
+
+      {/* v1.7.0：删除当前筛选结果 */}
+      <ConfirmDialog
+        open={deleteFilteredOpen}
+        title={`删除当前筛选结果的 ${filters.filtered.length} 条改枪码？`}
+        message="只删除当前筛选出的条目，其它记录不受影响。此操作不可撤销。"
+        confirmLabel={`删除 ${filters.filtered.length} 条`}
+        details={filters.filtered.slice(0, 8).map(
+          (i) => `${i.weapon_name} · ${i.note || "无备注"} · ${i.code}`,
+        )}
+        onCancel={() => setDeleteFilteredOpen(false)}
+        onConfirm={handleDeleteFiltered}
+      />
+
+      {/* v1.7.0：清空全部 */}
+      <ConfirmDialog
+        open={clearAllOpen}
+        title={`清空全部 ${data.items.length} 条改枪码？`}
+        message={
+          <>
+            这会删除<b>所有</b>改枪码记录，且不可撤销。
+            <br />
+            学习表与词库<b>不受影响</b>，但记录本身无法找回 —— 建议先「导出 JSON 备份」。
+          </>
+        }
+        confirmLabel={`清空全部 ${data.items.length} 条`}
+        onCancel={() => setClearAllOpen(false)}
+        onConfirm={handleClearAll}
       />
 
       {/* 应用内右键菜单：替代 WebView2 的「刷新/另存为/打印」 */}

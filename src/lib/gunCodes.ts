@@ -446,3 +446,17 @@ export function rulesTooltip(
   }
   return lines.join("\n");
 }
+
+// ═══════════════ 批量删除 / 清空全部（v1.7.0） ═══════════════
+
+export interface DeleteBulkResult {
+  ok: boolean;
+  deleted: number;
+  remaining: number;
+}
+
+export interface ClearAllResult {
+  ok: boolean;
+  deleted: number;
+  remaining: number;
+}

@@ -253,10 +253,13 @@ export function RulesManagerDialog({
                   <Text weight="semibold">当前词库</Text>
                   {meta ? (
                     <>
-                      <Badge appearance="tint" color="brand" size="small">v{meta.version}</Badge>
-                      <Caption1 className={styles.muted}>
-                        {meta.gunCount} 枪 · {meta.fingerprintCount} 指纹 · 已学 {meta.learnedCount}
-                      </Caption1>
+                      <Tooltip
+                        content={`${meta.gunCount} 枪 · ${meta.fingerprintCount} 指纹 · 已学 ${meta.learnedCount}`}
+                        relationship="description"
+                        withArrow
+                      >
+                        <Badge appearance="tint" color="brand" size="small">v{meta.version}</Badge>
+                      </Tooltip>
                       {meta.generated && (
                         <Caption1 className={styles.muted}>生成于 {meta.generated}</Caption1>
                       )}

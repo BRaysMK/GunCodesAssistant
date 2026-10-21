@@ -8,6 +8,8 @@ import type {
   RecognizeResult,
   RulesMeta,
   RuleFingerprintList,
+  DeleteBulkResult,
+  ClearAllResult,
   RulesResetResult,
   RulesUpdateCheck,
   RulesUpdateResult,
@@ -108,25 +110,30 @@ export function useGunCodes(onError: (msg: string) => void) {
    * 结束后 refresh 一次。既保持后端命令面不变，也避免为一次 UI 需求改动 Rust。
    * 有失败项时抛错，让上层如实汇报，而不是谎报「全部成功」。
    */
+  /**
+   * 批量删除
+   *
+   * v1.7.0 起改为**一次 IPC** 调用后端批量命令。
+   * 旧实现是前端 for 循环逐条 invoke —— 543 条就是 543 次 IPC 加 543 次全量读写盘，
+   * 既慢又会把中间状态反复落盘。
+   */
   const removeMany = useCallback(
     async (ids: string[]) => {
       if (ids.length === 0) return 0;
-      let ok = 0;
-      let failed = 0;
-      for (const id of ids) {
-        try {
-          await invoke("delete_local_gun_code", { id });
-          ok++;
-        } catch {
-          failed++;
-        }
-      }
+      const r = await invoke<DeleteBulkResult>("delete_local_gun_codes_by_ids", { ids });
       await refresh();
-      if (failed > 0) throw new Error(`${failed} 条未能删除（可能已被移除）`);
-      return ok;
+      if (!r.ok) throw new Error("批量删除失败");
+      return r.deleted;
     },
     [refresh],
   );
+
+  /** 清空全部改枪码（不可恢复，调用前必须二次确认） */
+  const clearAll = useCallback(async () => {
+    const r = await invoke<ClearAllResult>("clear_all_local_gun_codes");
+    await refresh();
+    return r;
+  }, [refresh]);
 
   // ── 导入 ──
   /** 解析预览（**不写库**） */
@@ -270,7 +277,7 @@ export function useGunCodes(onError: (msg: string) => void) {
     items, loading, meta,
     refresh, loadMeta,
     recognize,
-    add, update, remove, removeMany,
+    add, update, remove, removeMany, clearAll,
     preview, importRows,
     exportJson, importJson,
     refreshRules,
