@@ -7,6 +7,7 @@ import type {
   PreviewResult,
   RecognizeResult,
   RulesMeta,
+  RuleFingerprintList,
   RulesResetResult,
   RulesUpdateCheck,
   RulesUpdateResult,
@@ -222,6 +223,49 @@ export function useGunCodes(onError: (msg: string) => void) {
     [],
   );
 
+  // ── 规则库条目管理（v1.6.0）──
+
+  /** 列出规则库条目（搜索 + 分页） */
+  const listRuleFingerprints = useCallback(
+    (query = "", page = 1, pageSize = 50) =>
+      invoke<RuleFingerprintList>("list_rule_fingerprints", { query, page, pageSize }),
+    [],
+  );
+
+  /** 删除单条规则（写入黑名单，立即生效） */
+  const deleteRuleFingerprint = useCallback(
+    async (fingerprint: string) => {
+      const r = await invoke<{ ok: boolean; error?: string }>("delete_rule_fingerprint", { fingerprint });
+      await loadMeta();
+      return r;
+    },
+    [loadMeta],
+  );
+
+  /** 修改单条规则的枪名（立即生效） */
+  const updateRuleFingerprint = useCallback(
+    async (fingerprint: string, gun: string) => {
+      const r = await invoke<{ ok: boolean; error?: string }>("update_rule_fingerprint", { fingerprint, gun });
+      await loadMeta();
+      return r;
+    },
+    [loadMeta],
+  );
+
+  /** 清空线上库（回到纯本地库） */
+  const clearOnlineRules = useCallback(async () => {
+    const r = await invoke<{ ok: boolean; error?: string; removed?: boolean }>("clear_online_rules_cmd");
+    await loadMeta();
+    return r;
+  }, [loadMeta]);
+
+  /** 清空全部用户改动（删除黑名单 + 修改记录） */
+  const clearRuleOverrides = useCallback(async () => {
+    const r = await invoke<{ ok: boolean; error?: string; removed?: boolean }>("clear_rule_overrides");
+    await loadMeta();
+    return r;
+  }, [loadMeta]);
+
   return {
     items, loading, meta,
     refresh, loadMeta,
@@ -232,5 +276,7 @@ export function useGunCodes(onError: (msg: string) => void) {
     refreshRules,
     checkRulesUpdate, updateRules, resetRules,
     listLearned, deleteLearned, clearLearned, clearLearnedNotes,
+    listRuleFingerprints, deleteRuleFingerprint, updateRuleFingerprint,
+    clearOnlineRules, clearRuleOverrides,
   };
 }

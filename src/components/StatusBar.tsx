@@ -1,5 +1,5 @@
 import { Caption1, Text, Tooltip, makeStyles, tokens } from "@fluentui/react-components";
-import type { RulesMeta } from "@/lib/gunCodes";
+import { rulesTooltip, type RulesMeta } from "@/lib/gunCodes";
 
 const useStyles = makeStyles({
   bar: {
@@ -69,17 +69,10 @@ export function StatusBar({
 
       <span className={styles.spacer} />
 
-      <Tooltip
-        content="词库随包分发在 resources/gun-codes/rules.json，替换后可热更"
-        relationship="description"
-        withArrow
-      >
+      {/* 状态栏也只显示版本号，详情进 Tooltip（与线上版本对比用） */}
+      <Tooltip content={rulesTooltip(meta)} relationship="description" withArrow>
         <span className={styles.item}>
-          <Caption1>
-            {meta
-              ? `词库 v${meta.version} · ${meta.gunCount} 枪 · ${meta.fingerprintCount} 指纹 · 已学 ${meta.learnedCount}`
-              : "词库读取中…"}
-          </Caption1>
+          <Caption1>{meta ? `v${meta.version}` : "读取中…"}</Caption1>
         </span>
       </Tooltip>
 

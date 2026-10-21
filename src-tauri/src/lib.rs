@@ -4,6 +4,7 @@
 // （PDF 格式端到端识别测试）能访问其纯函数；不影响应用本身。
 pub mod local_gun_codes;
 pub mod remote_rules;
+pub mod rule_overrides;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -12,6 +13,11 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         // 词库在线热更新：仅在用户手动点「检查词库更新」时才发起请求
         .plugin(tauri_plugin_http::init())
+        .setup(|app| {
+            // v1.6.0 迁移：清理旧版「合并文件」（改用三层叠加后不再需要）
+            local_gun_codes::cleanup_legacy_merged(app.handle());
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![
             local_gun_codes::get_local_gun_codes,
             local_gun_codes::add_local_gun_code,
@@ -29,6 +35,12 @@ pub fn run() {
             remote_rules::check_gun_rules_update,
             remote_rules::update_gun_rules,
             remote_rules::reset_gun_rules,
+            // v1.6.0 新增：规则库条目增删改（本地/线上分离存储）
+            rule_overrides::list_rule_fingerprints,
+            rule_overrides::delete_rule_fingerprint,
+            rule_overrides::update_rule_fingerprint,
+            rule_overrides::clear_online_rules_cmd,
+            rule_overrides::clear_rule_overrides,
             // v1.4.0 新增：学习表管理（输错枪名后可纠正）
             local_gun_codes::list_learned_fingerprints,
             local_gun_codes::delete_learned_fingerprint,

@@ -442,6 +442,11 @@ export default function App() {
         onClearLearned={data.clearLearned}
         onClearNotes={data.clearLearnedNotes}
         onNotify={handleNotify}
+        onListRules={data.listRuleFingerprints}
+        onDeleteRule={data.deleteRuleFingerprint}
+        onUpdateRule={data.updateRuleFingerprint}
+        onClearOnlineRules={data.clearOnlineRules}
+        onClearRuleOverrides={data.clearRuleOverrides}
       />
 
       <ConfirmDialog

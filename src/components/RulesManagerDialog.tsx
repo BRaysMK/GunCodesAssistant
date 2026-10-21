@@ -11,6 +11,7 @@ import {
   DocumentQuestionMarkRegular, ErrorCircleRegular, WarningRegular,
 } from "@fluentui/react-icons";
 import type { LearnedFingerprint, RulesMeta } from "@/lib/gunCodes";
+import { RuleLibrarySection } from "./RuleLibrarySection";
 
 const useStyles = makeStyles({
   surface: { maxWidth: "900px", width: "94vw" },
@@ -71,6 +72,11 @@ export function RulesManagerDialog({
   onClearLearned,
   onClearNotes,
   onNotify,
+  onListRules,
+  onDeleteRule,
+  onUpdateRule,
+  onClearOnlineRules,
+  onClearRuleOverrides,
 }: {
   open: boolean;
   onClose: () => void;
@@ -84,6 +90,16 @@ export function RulesManagerDialog({
   /** 只清学习表里遗留的备注，保留枪名 */
   onClearNotes: () => Promise<{ ok: boolean; cleaned: number }>;
   onNotify: (msg: string, kind?: "success" | "error" | "warning") => void;
+  /** v1.6.0：规则库条目管理 */
+  onListRules: (query: string, page: number, pageSize: number) => Promise<{
+    ok: boolean; total: number; page: number; pageSize: number;
+    items: import("@/lib/gunCodes").RuleFingerprintRow[];
+    removedCount: number; patchedCount: number;
+  }>;
+  onDeleteRule: (fp: string) => Promise<{ ok: boolean; error?: string }>;
+  onUpdateRule: (fp: string, gun: string) => Promise<{ ok: boolean; error?: string }>;
+  onClearOnlineRules: () => Promise<{ ok: boolean; error?: string; removed?: boolean }>;
+  onClearRuleOverrides: () => Promise<{ ok: boolean; error?: string; removed?: boolean }>;
 }) {
   const styles = useStyles();
 
@@ -313,6 +329,18 @@ export function RulesManagerDialog({
                   </Button>
                 )}
               </div>
+
+              <Divider />
+
+              {/* ── 规则库条目（v1.6.0 新增）── */}
+              <RuleLibrarySection
+                onList={onListRules}
+                onDelete={onDeleteRule}
+                onUpdate={onUpdateRule}
+                onClearOnline={onClearOnlineRules}
+                onClearOverrides={onClearRuleOverrides}
+                onNotify={onNotify}
+              />
 
               <Divider />
 

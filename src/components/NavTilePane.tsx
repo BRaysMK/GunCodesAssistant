@@ -3,7 +3,7 @@ import {
   Button, Caption1, Divider, Text, Tooltip, makeStyles, mergeClasses, tokens,
 } from "@fluentui/react-components";
 import { ArrowSyncRegular, DismissRegular, FilterDismissRegular } from "@fluentui/react-icons";
-import { canonicalOf, catOf, type GunCode } from "@/lib/gunCodes";
+import { canonicalOf, catOf, rulesTooltip, type GunCode } from "@/lib/gunCodes";
 import { GunTile } from "./GunTile";
 
 const useStyles = makeStyles({
@@ -243,17 +243,10 @@ export function NavTilePane({
       <div className={styles.footer}>
         <Divider />
         <div className={styles.footerRow}>
-          <Tooltip
-            content={
-              meta
-                ? `词库 v${meta.version} · ${meta.gunCount} 枪 · ${meta.fingerprintCount} 指纹 · 已学 ${meta.learnedCount}`
-                : "词库读取中…"
-            }
-            relationship="description"
-            withArrow
-          >
+          {/* 常驻位置只显示版本号；枪数/指纹数/分层信息一律进 Tooltip */}
+          <Tooltip content={rulesTooltip(meta)} relationship="description" withArrow>
             <Caption1 className={styles.footerMeta}>
-              {meta ? `词库 v${meta.version} · ${meta.fingerprintCount} 指纹` : "词库读取中…"}
+              {meta ? `v${meta.version}` : "读取中…"}
             </Caption1>
           </Tooltip>
           <Button

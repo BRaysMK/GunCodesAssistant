@@ -217,6 +217,17 @@ export interface RulesMeta {
   gunCount: number;
   fingerprintCount: number;
   learnedCount: number;
+  /** v1.6.0：本地随包库版本（与线上分开） */
+  localVersion?: number;
+  localFingerprintCount?: number;
+  /** v1.6.0：线上下载库版本（未下载则为 null） */
+  onlineVersion?: number | null;
+  onlineFingerprintCount?: number | null;
+  onlineFetchedAt?: string | null;
+  onlineFetchedFrom?: string | null;
+  /** v1.6.0：用户手动删除/修改的条数 */
+  overridesRemoved?: number;
+  overridesPatched?: number;
   /** 分类 → 该分类下的枪数（统计用） */
   categories: Record<string, number>;
   /**
@@ -374,4 +385,64 @@ export function buildGunCandidates(
     counts.set(gun, (counts.get(gun) ?? 0) + 1);
   }
   return [...counts.entries()].sort((a, b) => b[1] - a[1]);
+}
+
+// ═══════════════ 规则库条目管理（v1.6.0） ═══════════════
+
+/** `list_rule_fingerprints` 的单条 */
+export interface RuleFingerprintRow {
+  fingerprint: string;
+  gun: string;
+  config: string;
+  /** 是否被用户改过枪名 */
+  patched: boolean;
+  /** 是否在删除黑名单里 */
+  removed: boolean;
+}
+
+export interface RuleFingerprintList {
+  ok: boolean;
+  total: number;
+  page: number;
+  pageSize: number;
+  items: RuleFingerprintRow[];
+  removedCount: number;
+  patchedCount: number;
+}
+
+/**
+ * 词库版本 Tooltip 文案（v1.6.0）
+ *
+ * 界面常驻位置只显示 `v{version}`，详细信息统一收进 Tooltip。
+ * 这里把「本地库 / 线上库 / 用户改动」三层分开列出，
+ * 让用户一眼看出：当前生效的版本、线上有没有下载过、自己改过多少。
+ */
+export function rulesTooltip(
+  meta:
+    | (Pick<RulesMeta, "version" | "gunCount" | "fingerprintCount" | "learnedCount"> &
+        Partial<RulesMeta>)
+    | null
+    | undefined,
+): string {
+  if (!meta) return "词库读取中…";
+  const lines = [
+    `生效版本 v${meta.version}`,
+    `${meta.gunCount} 枪 · ${meta.fingerprintCount} 指纹 · 已学 ${meta.learnedCount}`,
+  ];
+
+  // 分层信息：只有后端返回了才显示（兼容旧后端）
+  if (meta.localVersion != null) {
+    lines.push(`本地库 v${meta.localVersion}（${meta.localFingerprintCount ?? 0} 指纹）`);
+  }
+  if (meta.onlineVersion != null) {
+    lines.push(`线上库 v${meta.onlineVersion}（${meta.onlineFingerprintCount ?? 0} 指纹）`);
+  } else if (meta.localVersion != null) {
+    lines.push("线上库：未下载");
+  }
+  const rm = meta.overridesRemoved ?? 0;
+  const pt = meta.overridesPatched ?? 0;
+  if (rm > 0 || pt > 0) {
+    lines.push(`你的改动：删除 ${rm} 条 · 修改 ${pt} 条`);
+  }
+  return lines.join("\n");
 }
