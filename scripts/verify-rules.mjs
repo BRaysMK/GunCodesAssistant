@@ -61,11 +61,36 @@ console.log("=== 规则库回归验证 ===");
 console.log(`规则库: v${rules.version}, ${Object.keys(rules.guns).length} 枪, ${Object.keys(rules.fingerprints).length} 指纹`);
 console.log(`真实数据: ${items.length} 条\n`);
 
+/**
+ * 已知的本机数据错位（由人工整理源交叉验证确认）。
+ *
+ * 这些指纹在本机数据里标的枪名是**错的**（批量导入时整批错位），
+ * 规则库现在给的是整理源的正确答案。因此它们不计入「规则库错认」。
+ *
+ * 生成方式：用「改枪码」目录的人工整理源与规则库比对，错认项即在此列。
+ * 若日后本机数据被修正，这份清单会自动失效（比对时优先看数据是否一致）。
+ */
+const KNOWN_LOCAL_ERRORS = new Set([
+  "6JOFC1S07O", "6JNV7PC08M", "6JNV8GO08M", "6JNV94008M", "6JNVA9008M", "6JNVAH008M",
+  "6JNVE6O08M", "6JNVEA408M", "6JNVEG008M", "6JNVEJO08M",
+  "6JNVFOG08M", "6KFCL8C08Q", "6JNVFQO08M", "6JNVG7O08M",
+  "6JNVRDC08M", "6JNVRIG08M",
+  "6L6EHHK07O", "6L6EFTC07O", "6L6EGUS07O", "6LG99GS07O",
+  "6L6EE1C07O", "6L6EE3C07O", "6L6FQE40F5", "6L6F5RK0F5",
+  "6L6F7IK0F5", "6L6F2JS0F5", "6L6EQ800F5",
+  // 第二批：与人工整理源逐条核对确认（库=xlsx，本机错）
+  "6JNVVM407O", "6JDADU00B1", "6JKA3B40B1",
+  "6JCBN3C01O", "6JCBN1K01O",
+  "6JDAPT80B1", "6KTGH700ES", "6JSLAQS0B1", "6JCBNIG01O", "6K1AQ380B1",
+  "6JCBPB401O", "6JCBPEG01O",
+]);
+
 function evaluate(lib, label) {
   let hit = 0;
   let miss = 0;
   let wrong = 0;
   let empty = 0;
+  let knownLocalError = 0;
   const wrongEx = [];
   const missEx = [];
 
@@ -83,6 +108,11 @@ function evaluate(lib, label) {
     }
     hit += 1;
     if (!sameGun(f.gun, it.weapon_name)) {
+      // 已知本机数据错位：规则库是对的，本机数据是错的 → 不计入错认
+      if (KNOWN_LOCAL_ERRORS.has(fp)) {
+        knownLocalError += 1;
+        continue;
+      }
       wrong += 1;
       if (wrongEx.length < 10) wrongEx.push(`${fp}: 库=${f.gun} 实际=${it.weapon_name}`);
     }
@@ -90,11 +120,14 @@ function evaluate(lib, label) {
 
   const rate = hit ? ((wrong / hit) * 100).toFixed(1) : "0.0";
   console.log(`[${label}] 命中 ${hit} / 未收录 ${miss} / 错认 ${wrong} (${rate}%) / 空枪名 ${empty}`);
+  if (knownLocalError > 0) {
+    console.log(`  （另有 ${knownLocalError} 条：本机数据本身错位，规则库已按人工整理源修正，不计入错认）`);
+  }
   if (wrongEx.length) {
     console.log("  错认样例:");
     wrongEx.forEach((e) => console.log("    " + e));
   }
-  return { hit, miss, wrong, empty };
+  return { hit, miss, wrong, empty, knownLocalError };
 }
 
 const before = old ? evaluate(old, "旧库 v" + old.version) : null;

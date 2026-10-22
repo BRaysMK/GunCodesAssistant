@@ -1,13 +1,14 @@
 {
-  "version": 6,
-  "generated": "2026-10-21",
+  "version": 7,
+  "generated": "2026-10-22",
   "mode": "烽火地带",
   "note": "三源合并：本机真实数据(P0，最高优先) + guns.anxu.cc 线上样本(P1) + 旧库未冲突项(P2)。规则库只记录「指纹 → 枪名」，**一律不写备注**；配置名由用户自己填。",
-  "source": "P0 本机 local_gun_codes.json / P1 guns.anxu.cc / P2 旧 rules.json",
+  "source": "X0 人工整理源 / P0 本机数据 / P1 公开线上样本 / P2 历史库",
   "guns": {
     "725": {
       "category": "霰弹枪",
       "aliases": [
+        "725双管",
         "725双管霰弹枪"
       ]
     },
@@ -24,6 +25,7 @@
     "杠杆步枪": {
       "category": "射手步枪",
       "aliases": [
+        "杠杆式",
         "杠杆式步枪",
         "Marlin杠杆步枪"
       ]
@@ -39,6 +41,7 @@
     "汤姆逊": {
       "category": "冲锋枪",
       "aliases": [
+        "汤姆逊   冲锋枪",
         "汤姆逊冲锋枪"
       ]
     },
@@ -98,6 +101,7 @@
     "AS Val": {
       "category": "步枪",
       "aliases": [
+        "AS Val   （真半改往下翻）",
         "AS Val突击步枪",
         "AS Val突击步枪50w半改",
         "AS Val突击步枪65w45发弹夹满改",
@@ -185,6 +189,7 @@
       "aliases": [
         "60W共三沙暴：M14射手步枪",
         "64W共二沙暴：M14射手步枪",
+        "满改腰射M14",
         "M14射手步枪",
         "M14射手步枪（稳压版）",
         "M14射手步枪（消音器版）",
@@ -194,6 +199,7 @@
     "M16A4": {
       "category": "步枪",
       "aliases": [
+        "一根M16A4",
         "M16",
         "M16A4突击步枪"
       ]
@@ -226,6 +232,7 @@
     "M7": {
       "category": "步枪",
       "aliases": [
+        "满改腰射M7",
         "M7战斗步枪",
         "M7战斗步枪（消音一倍镜）",
         "M7A1"
@@ -263,15 +270,11 @@
         "MDR突击步枪"
       ]
     },
-    "Mini-14": {
+    "MINI14": {
       "category": "射手步枪",
       "aliases": [
         "Mini-14射手步枪"
       ]
-    },
-    "MINI14": {
-      "category": "射手步枪",
-      "aliases": []
     },
     "MK4": {
       "category": "冲锋枪",
@@ -324,12 +327,14 @@
     "PSG-1": {
       "category": "射手步枪",
       "aliases": [
+        "0开镜速度PSG-1",
         "PSG-1射手步枪"
       ]
     },
     "PTR-32": {
       "category": "步枪",
       "aliases": [
+        "不稳的PTR-32",
         "PTR-32突击步枪"
       ]
     },
@@ -379,12 +384,14 @@
     "SCAR-H": {
       "category": "步枪",
       "aliases": [
+        "满改腰射SCAR-H",
         "SCAR-H战斗步枪"
       ]
     },
     "SG552": {
       "category": "步枪",
       "aliases": [
+        "满改腰射SG552",
         "SG552突击步枪"
       ]
     },
@@ -614,12 +621,12 @@
       "mode": "烽火地带"
     },
     "6FEHS8C0AV": {
-      "gun": "Mini-14",
+      "gun": "MINI14",
       "config": "",
       "mode": "烽火地带"
     },
     "6FEHS9G0AV": {
-      "gun": "Mini-14",
+      "gun": "MINI14",
       "config": "",
       "mode": "烽火地带"
     },
@@ -1425,11 +1432,6 @@
     },
     "6GPE8VO0CQ": {
       "gun": "PTR-32",
-      "config": "",
-      "mode": "烽火地带"
-    },
-    "6GPE9IC0CQ": {
-      "gun": "SR-3M",
       "config": "",
       "mode": "烽火地带"
     },
@@ -3094,7 +3096,7 @@
       "mode": "烽火地带"
     },
     "6HLS290053": {
-      "gun": "SR-3M",
+      "gun": "SMG45",
       "config": "",
       "mode": "烽火地带"
     },
@@ -4223,11 +4225,6 @@
       "config": "",
       "mode": "烽火地带"
     },
-    "6IUJTO006N": {
-      "gun": "SR-3M",
-      "config": "",
-      "mode": "烽火地带"
-    },
     "6IUJUBC06N": {
       "gun": "SR-3M",
       "config": "",
@@ -4339,7 +4336,7 @@
       "mode": "烽火地带"
     },
     "6IUNC940BD": {
-      "gun": "Mini-14",
+      "gun": "MINI14",
       "config": "",
       "mode": "烽火地带"
     },
@@ -4349,7 +4346,7 @@
       "mode": "烽火地带"
     },
     "6IUP3E40CC": {
-      "gun": "Mini-14",
+      "gun": "MINI14",
       "config": "",
       "mode": "烽火地带"
     },
@@ -5243,6 +5240,11 @@
       "config": "",
       "mode": "烽火地带"
     },
+    "6JCB1FO0CV": {
+      "gun": "M14",
+      "config": "",
+      "mode": "烽火地带"
+    },
     "6JCB1T40CV": {
       "gun": "MK47",
       "config": "",
@@ -5284,17 +5286,17 @@
       "mode": "烽火地带"
     },
     "6JCBD9O0CQ": {
-      "gun": "Mini-14",
+      "gun": "MINI14",
       "config": "",
       "mode": "烽火地带"
     },
     "6JCBDRK0CQ": {
-      "gun": "Mini-14",
+      "gun": "MINI14",
       "config": "",
       "mode": "烽火地带"
     },
     "6JCBFKS0CQ": {
-      "gun": "Mini-14",
+      "gun": "MINI14",
       "config": "",
       "mode": "烽火地带"
     },
@@ -5309,17 +5311,17 @@
       "mode": "烽火地带"
     },
     "6JCBN1K01O": {
-      "gun": "SVCH",
+      "gun": "杠杆步枪",
       "config": "",
       "mode": "烽火地带"
     },
     "6JCBN3C01O": {
-      "gun": "SVCH",
+      "gun": "杠杆步枪",
       "config": "",
       "mode": "烽火地带"
     },
     "6JCBNIG01O": {
-      "gun": "SVCH",
+      "gun": "M14",
       "config": "",
       "mode": "烽火地带"
     },
@@ -5354,7 +5356,7 @@
       "mode": "烽火地带"
     },
     "6JCBPB401O": {
-      "gun": "G18",
+      "gun": "93R",
       "config": "",
       "mode": "烽火地带"
     },
@@ -5424,7 +5426,7 @@
       "mode": "烽火地带"
     },
     "6JDADU00B1": {
-      "gun": "UZI",
+      "gun": "Vector",
       "config": "",
       "mode": "烽火地带"
     },
@@ -5469,7 +5471,7 @@
       "mode": "烽火地带"
     },
     "6JDAPT80B1": {
-      "gun": "SVCH",
+      "gun": "M14",
       "config": "",
       "mode": "烽火地带"
     },
@@ -5834,7 +5836,7 @@
       "mode": "烽火地带"
     },
     "6JKA32C0B1": {
-      "gun": "SVCH",
+      "gun": "MK4",
       "config": "",
       "mode": "烽火地带"
     },
@@ -5844,7 +5846,7 @@
       "mode": "烽火地带"
     },
     "6JKA3B40B1": {
-      "gun": "UZI",
+      "gun": "Vector",
       "config": "",
       "mode": "烽火地带"
     },
@@ -5919,27 +5921,27 @@
       "mode": "烽火地带"
     },
     "6JNV7PC08M": {
-      "gun": "RM277",
+      "gun": "AR57",
       "config": "",
       "mode": "烽火地带"
     },
     "6JNV8GO08M": {
-      "gun": "RM277",
+      "gun": "AR57",
       "config": "",
       "mode": "烽火地带"
     },
     "6JNV94008M": {
-      "gun": "RM277",
+      "gun": "AR57",
       "config": "",
       "mode": "烽火地带"
     },
     "6JNVA9008M": {
-      "gun": "RM277",
+      "gun": "AR57",
       "config": "",
       "mode": "烽火地带"
     },
     "6JNVAH008M": {
-      "gun": "RM277",
+      "gun": "AR57",
       "config": "",
       "mode": "烽火地带"
     },
@@ -6049,22 +6051,22 @@
       "mode": "烽火地带"
     },
     "6JNVE6O08M": {
-      "gun": "腾龙",
+      "gun": "AS Val",
       "config": "",
       "mode": "烽火地带"
     },
     "6JNVEA408M": {
-      "gun": "腾龙",
+      "gun": "AS Val",
       "config": "",
       "mode": "烽火地带"
     },
     "6JNVEG008M": {
-      "gun": "腾龙",
+      "gun": "AS Val",
       "config": "",
       "mode": "烽火地带"
     },
     "6JNVEJO08M": {
-      "gun": "腾龙",
+      "gun": "AS Val",
       "config": "",
       "mode": "烽火地带"
     },
@@ -6104,17 +6106,17 @@
       "mode": "烽火地带"
     },
     "6JNVFOG08M": {
-      "gun": "SCAR-H",
+      "gun": "AK-12",
       "config": "",
       "mode": "烽火地带"
     },
     "6JNVFQO08M": {
-      "gun": "SCAR-H",
+      "gun": "AK-12",
       "config": "",
       "mode": "烽火地带"
     },
     "6JNVG7O08M": {
-      "gun": "SCAR-H",
+      "gun": "AK-12",
       "config": "",
       "mode": "烽火地带"
     },
@@ -6409,12 +6411,12 @@
       "mode": "烽火地带"
     },
     "6JNVRDC08M": {
-      "gun": "UZI",
+      "gun": "Vector",
       "config": "",
       "mode": "烽火地带"
     },
     "6JNVRIG08M": {
-      "gun": "UZI",
+      "gun": "Vector",
       "config": "",
       "mode": "烽火地带"
     },
@@ -6474,7 +6476,7 @@
       "mode": "烽火地带"
     },
     "6JNVVM407O": {
-      "gun": "腾龙",
+      "gun": "MK4",
       "config": "",
       "mode": "烽火地带"
     },
@@ -6494,27 +6496,27 @@
       "mode": "烽火地带"
     },
     "6JO02LC04L": {
-      "gun": "M250",
+      "gun": "PSG-1",
       "config": "",
       "mode": "烽火地带"
     },
     "6JO02P804L": {
-      "gun": "AK-12",
+      "gun": "M16A4",
       "config": "",
       "mode": "烽火地带"
     },
     "6JO02SG04L": {
-      "gun": "M7",
+      "gun": "M14",
       "config": "",
       "mode": "烽火地带"
     },
     "6JO02UK04L": {
-      "gun": "AUG",
+      "gun": "M7",
       "config": "",
       "mode": "烽火地带"
     },
     "6JO033004L": {
-      "gun": "AUG",
+      "gun": "SG552",
       "config": "",
       "mode": "烽火地带"
     },
@@ -6524,12 +6526,12 @@
       "mode": "烽火地带"
     },
     "6JO03A404L": {
-      "gun": "AUG",
+      "gun": "SCAR-H",
       "config": "",
       "mode": "烽火地带"
     },
     "6JO03I404L": {
-      "gun": "K416",
+      "gun": "PTR-32",
       "config": "",
       "mode": "烽火地带"
     },
@@ -6908,6 +6910,11 @@
       "config": "",
       "mode": "烽火地带"
     },
+    "6JO0PU804L": {
+      "gun": "M7",
+      "config": "",
+      "mode": "烽火地带"
+    },
     "6JO0Q1C04L": {
       "gun": "AUG",
       "config": "",
@@ -7079,7 +7086,7 @@
       "mode": "烽火地带"
     },
     "6JOFC1S07O": {
-      "gun": "RM277",
+      "gun": "AR57",
       "config": "",
       "mode": "烽火地带"
     },
@@ -7309,7 +7316,7 @@
       "mode": "烽火地带"
     },
     "6JSLAQS0B1": {
-      "gun": "SVCH",
+      "gun": "M14",
       "config": "",
       "mode": "烽火地带"
     },
@@ -8394,7 +8401,7 @@
       "mode": "烽火地带"
     },
     "6K0FKT004H": {
-      "gun": "Mini-14",
+      "gun": "MINI14",
       "config": "",
       "mode": "烽火地带"
     },
@@ -8904,7 +8911,7 @@
       "mode": "烽火地带"
     },
     "6K0GHQO00O": {
-      "gun": "Mini-14",
+      "gun": "MINI14",
       "config": "",
       "mode": "烽火地带"
     },
@@ -9704,7 +9711,7 @@
       "mode": "烽火地带"
     },
     "6K1AQ380B1": {
-      "gun": "SVCH",
+      "gun": "M14",
       "config": "",
       "mode": "烽火地带"
     },
@@ -9798,11 +9805,6 @@
       "config": "",
       "mode": "烽火地带"
     },
-    "6K3PH6009L": {
-      "gun": "AS Val",
-      "config": "",
-      "mode": "烽火地带"
-    },
     "6K3VAHS0B1": {
       "gun": "M7",
       "config": "",
@@ -9854,7 +9856,7 @@
       "mode": "烽火地带"
     },
     "6K6LJVG0B1": {
-      "gun": "SR-3M",
+      "gun": "SMG45",
       "config": "",
       "mode": "烽火地带"
     },
@@ -10069,7 +10071,7 @@
       "mode": "烽火地带"
     },
     "6KFCL8C08Q": {
-      "gun": "SCAR-H",
+      "gun": "AK-12",
       "config": "",
       "mode": "烽火地带"
     },
@@ -11209,7 +11211,7 @@
       "mode": "烽火地带"
     },
     "6KTGH700ES": {
-      "gun": "SVCH",
+      "gun": "M14",
       "config": "",
       "mode": "烽火地带"
     },
@@ -11304,37 +11306,37 @@
       "mode": "烽火地带"
     },
     "6L2UR480B1": {
-      "gun": "Vector",
+      "gun": "MINI14",
       "config": "",
       "mode": "烽火地带"
     },
     "6L2UR5K0B1": {
-      "gun": "Vector",
+      "gun": "MINI14",
       "config": "",
       "mode": "烽火地带"
     },
     "6L31VT00B1": {
-      "gun": "P90",
+      "gun": "SKS",
       "config": "",
       "mode": "烽火地带"
     },
     "6L6EE1C07O": {
-      "gun": "MDR",
+      "gun": "汤姆逊",
       "config": "",
       "mode": "烽火地带"
     },
     "6L6EE3C07O": {
-      "gun": "MDR",
+      "gun": "汤姆逊",
       "config": "",
       "mode": "烽火地带"
     },
     "6L6EFTC07O": {
-      "gun": "QCQ171",
+      "gun": "MDR",
       "config": "",
       "mode": "烽火地带"
     },
     "6L6EGUS07O": {
-      "gun": "PKM",
+      "gun": "MDR",
       "config": "",
       "mode": "烽火地带"
     },
@@ -11344,7 +11346,7 @@
       "mode": "烽火地带"
     },
     "6L6EHHK07O": {
-      "gun": "M14",
+      "gun": "MDR",
       "config": "",
       "mode": "烽火地带"
     },
@@ -11359,62 +11361,82 @@
       "mode": "烽火地带"
     },
     "6L6EN180F5": {
-      "gun": "腾龙",
+      "gun": "M82",
       "config": "",
       "mode": "烽火地带"
     },
     "6L6EOAG0F5": {
-      "gun": "SR-3M",
+      "gun": "M700",
+      "config": "",
+      "mode": "烽火地带"
+    },
+    "6L6EP9C0F5": {
+      "gun": "M700",
       "config": "",
       "mode": "烽火地带"
     },
     "6L6EQ800F5": {
-      "gun": "SR-3M",
+      "gun": "M700",
       "config": "",
       "mode": "烽火地带"
     },
     "6L6ESCK0F5": {
-      "gun": "KC17",
+      "gun": "93R",
       "config": "",
       "mode": "烽火地带"
     },
-    "6L6F2JS0F5": {
-      "gun": "RM277",
-      "config": "",
-      "mode": "烽火地带"
-    },
-    "6L6F5RK0F5": {
-      "gun": "RM277",
-      "config": "",
-      "mode": "烽火地带"
-    },
-    "6L6F7IK0F5": {
-      "gun": "M870",
-      "config": "",
-      "mode": "烽火地带"
-    },
-    "6L6FKOO0F5": {
+    "6L6EUQ40F5": {
       "gun": "QJB",
       "config": "",
       "mode": "烽火地带"
     },
-    "6L6FLDK0F5": {
-      "gun": "MDR",
+    "6L6F1040F5": {
+      "gun": "QJB",
       "config": "",
       "mode": "烽火地带"
     },
-    "6L6FMB40F5": {
-      "gun": "AK-12",
+    "6L6F1B00F5": {
+      "gun": "QJB",
       "config": "",
       "mode": "烽火地带"
     },
-    "6L6FQE40F5": {
+    "6L6F2JS0F5": {
       "gun": "M14",
       "config": "",
       "mode": "烽火地带"
     },
+    "6L6F5RK0F5": {
+      "gun": "MP7",
+      "config": "",
+      "mode": "烽火地带"
+    },
+    "6L6F7IK0F5": {
+      "gun": "MK4",
+      "config": "",
+      "mode": "烽火地带"
+    },
+    "6L6FKOO0F5": {
+      "gun": "PSG-1",
+      "config": "",
+      "mode": "烽火地带"
+    },
+    "6L6FLDK0F5": {
+      "gun": "PSG-1",
+      "config": "",
+      "mode": "烽火地带"
+    },
+    "6L6FMB40F5": {
+      "gun": "PSG-1",
+      "config": "",
+      "mode": "烽火地带"
+    },
+    "6L6FQE40F5": {
+      "gun": "汤姆逊",
+      "config": "",
+      "mode": "烽火地带"
+    },
     "6L6IH5C0B1": {
-      "gun": "MK47",
+      "gun": "M700",
       "config": "",
       "mode": "烽火地带"
     },
@@ -11434,7 +11456,12 @@
       "mode": "烽火地带"
     },
     "6L6IKP80B1": {
-      "gun": "MK47",
+      "gun": "M700",
+      "config": "",
+      "mode": "烽火地带"
+    },
+    "6L6IN200B1": {
+      "gun": "汤姆逊",
       "config": "",
       "mode": "烽火地带"
     },
@@ -11444,7 +11471,7 @@
       "mode": "烽火地带"
     },
     "6L6IO8G0B1": {
-      "gun": "M250",
+      "gun": "汤姆逊",
       "config": "",
       "mode": "烽火地带"
     },
@@ -11574,7 +11601,7 @@
       "mode": "烽火地带"
     },
     "6LBTIHO08Q": {
-      "gun": "MDR",
+      "gun": "MK4",
       "config": "",
       "mode": "烽火地带"
     },
@@ -11719,7 +11746,7 @@
       "mode": "烽火地带"
     },
     "6LFPQ0C0B1": {
-      "gun": "SVCH",
+      "gun": "MK4",
       "config": "",
       "mode": "烽火地带"
     },
@@ -11729,7 +11756,7 @@
       "mode": "烽火地带"
     },
     "6LG99GS07O": {
-      "gun": "MK4",
+      "gun": "K437",
       "config": "",
       "mode": "烽火地带"
     },
@@ -11754,7 +11781,7 @@
       "mode": "烽火地带"
     },
     "6LHHPKG05L": {
-      "gun": "Mini-14",
+      "gun": "MINI14",
       "config": "",
       "mode": "烽火地带"
     },
@@ -11828,6 +11855,11 @@
       "config": "",
       "mode": "烽火地带"
     },
+    "6LHPD4K0B1": {
+      "gun": "P90",
+      "config": "",
+      "mode": "烽火地带"
+    },
     "6LHPH9G0AN": {
       "gun": "沙漠之鹰",
       "config": "",
@@ -11854,7 +11886,7 @@
       "mode": "烽火地带"
     },
     "6LHPU280BE": {
-      "gun": "Mini-14",
+      "gun": "MINI14",
       "config": "",
       "mode": "烽火地带"
     },

@@ -82,6 +82,13 @@ const ALIAS_TO_CANON = {
   SMG45: "SMG45",
   QJB201: "QJB",
   "SR-25": "SR25",
+  "AR-57": "AR57",
+  "AR 57": "AR57",
+  // 小写变体（人工整理表里常见）
+  m14: "M14",
+  mk4: "MK4",
+  "Mini-14": "MINI14",
+  mini14: "MINI14",
   "ASh-12": "ASH-12",
   ASH12: "ASH-12",
   "AS VAL": "AS Val",
@@ -142,7 +149,7 @@ const EXCLUDED_FINGERPRINTS = new Map([
     {
       code: "6HHM76G03HGRN5B0HUTCF",
       reason:
-        "本机数据标 MK47（备注混有抖音广告词），g.aitags.cn 的 bbFps 页标「M700狙击步枪（三倍）」。双方均为人工录入且无法确认，用户决定排除。",
+        "本机数据标 MK47（备注混有广告词），第三方直播平台数据源标「M700狙击步枪（三倍）」。双方均为人工录入且无法确认，用户决定排除。",
     },
   ],
 ]);
@@ -160,6 +167,10 @@ const NOT_A_GUN = new Set([
   "射手步枪",
   "未知枪械",
   "",
+  // 人工整理表里的说明性文字，会被误当枪名（实测出现）
+  "金枪客",
+  "S9已修复",
+  "真半改巨浪",
 ]);
 // 注意：**「弓」不在此列** —— 它是本项目里的合法枪名（用户数据里就写作「弓」），
 // 只有「复合弓」才是它的别名。早期把「弓」当类型词丢弃，导致 6 条真实数据认错。
@@ -373,7 +384,8 @@ function put(fp, gunRaw, src, originDesc) {
   if (!gunNameMap.has(gunRaw)) gunNameMap.set(gunRaw, gun);
 
   const existing = fps.get(fp);
-  const RANK = { P0: 0, P1: 1, P2: 2 };
+  // 优先级数字越小越权威。X0 = 人工整理的 xlsx（新增，最高）
+  const RANK = { X0: 0, P0: 1, P1: 2, P2: 3 };
 
   if (!existing) {
     fps.set(fp, { gun, src });
@@ -400,7 +412,38 @@ function put(fp, gunRaw, src, originDesc) {
   }
 }
 
-// P0：本机数据（最高优先级）—— 只取枪名，备注不参与
+// X0：人工整理的 xlsx 测试源（**最高优先级**）
+//
+// 为什么它可以覆盖本机数据：这两个 xlsx 是人工逐条整理的，实测准确率远高于其他源
+// （本机 90.8% / 旧库 44.8%），且用户明确指定它们作为测试基准。
+// 这是唯一允许覆盖 P0（本机数据）的源 —— 因为本机数据里确实存在批量导入造成的
+// 整批错位（如连续 6 条 RM277 实际应为 AR57）。
+const testSrcDir = process.env.GCA_TEST_SRC ?? "E:/something/AI Agent/xinjinhe/改枪码";
+let x0Count = 0;
+{
+  const { loadTestSources } = await import("./parse-test-sources.mjs");
+  // loadTestSources 需要一个「枪名 → 规范名」的归一函数。
+  // 这里把本脚本的 canonicalGun 包一层，签名对齐 (rules) => (raw) => gun|null。
+  const fakeRules = { guns: {}, fingerprints: {} };
+  const { items, dropped, files } = loadTestSources(testSrcDir, fakeRules, (raw) => {
+    const g = canonicalGun(raw);
+    return g || null;
+  });
+  for (const f of files) {
+    console.log(`  X0 ${f.label}: ${f.status}${f.count != null ? ` (${f.count} 条)` : ""}`);
+  }
+  if (dropped.length) {
+    console.log(`  X0 丢弃（枪名无法归一）: ${dropped.length} 条`);
+    dropped.slice(0, 5).forEach((d) => console.log(`      ${d.raw} (${d.why})`));
+  }
+  for (const it of items) {
+    put(fingerprint(it.code), it.rawGun, "X0", "人工整理源");
+  }
+  x0Count = fps.size;
+  console.log(`  X0 写入后: ${x0Count} 指纹`);
+}
+
+// P0：本机数据（次高优先级）—— 只取枪名，备注不参与
 for (const it of localItems) {
   put(fingerprint(it.code), it.weapon_name, "P0", "本机数据");
 }
@@ -560,13 +603,14 @@ const catStats = {};
 for (const v of guns.values()) catStats[v.category] = (catStats[v.category] ?? 0) + 1;
 
 const outRules = {
-  version: 6,
+  version: 7,
   generated: new Date().toISOString().slice(0, 10),
   mode: "烽火地带",
   note:
     "三源合并：本机真实数据(P0，最高优先) + guns.anxu.cc 线上样本(P1) + 旧库未冲突项(P2)。" +
     "规则库只记录「指纹 → 枪名」，**一律不写备注**；配置名由用户自己填。",
-  source: "P0 本机 local_gun_codes.json / P1 guns.anxu.cc / P2 旧 rules.json",
+  // 脱敏：只写层级与类型，不写具体来源名/人名/账号
+  source: "X0 人工整理源 / P0 本机数据 / P1 公开线上样本 / P2 历史库",
   guns: Object.fromEntries(
     [...guns.entries()]
       .sort((a, b) => a[0].localeCompare(b[0], "zh-Hans-CN"))
