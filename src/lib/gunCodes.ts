@@ -431,13 +431,16 @@ export function rulesTooltip(
   ];
 
   // 分层信息：只有后端返回了才显示（兼容旧后端）
+  //
+  // 术语说明（v1.9.0）：这里的「本地库」指随包分发的 rules.json，
+  // 它是**兜底默认值**，优先级低于线上库 —— 不要和「用户数据」混淆。
   if (meta.localVersion != null) {
-    lines.push(`本地库 v${meta.localVersion}（${meta.localFingerprintCount ?? 0} 指纹）`);
+    lines.push(`随包库 v${meta.localVersion}（${meta.localFingerprintCount ?? 0} 指纹，兜底）`);
   }
   if (meta.onlineVersion != null) {
-    lines.push(`线上库 v${meta.onlineVersion}（${meta.onlineFingerprintCount ?? 0} 指纹）`);
+    lines.push(`线上库 v${meta.onlineVersion}（${meta.onlineFingerprintCount ?? 0} 指纹，可覆盖随包库）`);
   } else if (meta.localVersion != null) {
-    lines.push("线上库：未下载");
+    lines.push("线上库：未下载（点「检查更新」获取）");
   }
   const rm = meta.overridesRemoved ?? 0;
   const pt = meta.overridesPatched ?? 0;
